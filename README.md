@@ -1,7 +1,7 @@
 # yente
 A matchmaker for textual data.
 
-# Installationo
+# Installation
 
 **Precompiled binaries**
 
