@@ -13,3 +13,4 @@
  *.prof
  *.aux
  *.hp
+ **/*.swp
