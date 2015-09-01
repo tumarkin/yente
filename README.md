@@ -13,7 +13,7 @@ To do
 
 
 * Install Haskell. The Haskell Platform is recommended: <https://www.haskell.org/platform/>.
-* On Windows, install Cygwin.
+* Cygwin is required on Windows systems: <http://www.cygwin.com/>.
 * Clone this repository.
 * Open a terminal shell and cd into the repository root directory. Then, execute the following commands:
   * `cabal update`
