@@ -1,9 +1,24 @@
 # yente
 A matchmaker for textual data.
 
-# Installation
+# Installationo
 
-*To do*
+**Precompiled binaries**
+
+To do
+
+**From source**
+
+*yente* is written in Haskell. To compile from source,
+
+
+* Install Haskell. The Haskell Platform is recommended: <https://www.haskell.org/platform/>.
+* On Windows, install Cygwin.
+* Clone this repository.
+* Open a terminal shell and cd into the repository root directory. Then, execute the following commands:
+  * `cabal update`
+  * `cabal install yente` 
+
 
 # Usage
 
