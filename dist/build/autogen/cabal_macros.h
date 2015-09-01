@@ -14,12 +14,12 @@
   (major1) == 0 && (major2) <  10 || \
   (major1) == 0 && (major2) == 10 && (minor) <= 4)
 
-/* package cassava-0.4.2.3 */
-#define VERSION_cassava "0.4.2.3"
+/* package cassava-0.4.3.0 */
+#define VERSION_cassava "0.4.3.0"
 #define MIN_VERSION_cassava(major1,major2,minor) (\
   (major1) <  0 || \
   (major1) == 0 && (major2) <  4 || \
-  (major1) == 0 && (major2) == 4 && (minor) <= 2)
+  (major1) == 0 && (major2) == 4 && (minor) <= 3)
 
 /* package cassava-streams-0.1.1.0 */
 #define VERSION_cassava_streams "0.1.1.0"
@@ -28,12 +28,12 @@
   (major1) == 0 && (major2) <  1 || \
   (major1) == 0 && (major2) == 1 && (minor) <= 1)
 
-/* package cmdtheline-0.2.3 */
-#define VERSION_cmdtheline "0.2.3"
-#define MIN_VERSION_cmdtheline(major1,major2,minor) (\
+/* package cmdargs-0.10.13 */
+#define VERSION_cmdargs "0.10.13"
+#define MIN_VERSION_cmdargs(major1,major2,minor) (\
   (major1) <  0 || \
-  (major1) == 0 && (major2) <  2 || \
-  (major1) == 0 && (major2) == 2 && (minor) <= 3)
+  (major1) == 0 && (major2) <  10 || \
+  (major1) == 0 && (major2) == 10 && (minor) <= 13)
 
 /* package containers-0.5.5.1 */
 #define VERSION_containers "0.5.5.1"
@@ -49,8 +49,8 @@
   (major1) == 1 && (major2) <  3 || \
   (major1) == 1 && (major2) == 3 && (minor) <= 0)
 
-/* package edit-distance-0.2.1.2 */
-#define VERSION_edit_distance "0.2.1.2"
+/* package edit-distance-0.2.1.3 */
+#define VERSION_edit_distance "0.2.1.3"
 #define MIN_VERSION_edit_distance(major1,major2,minor) (\
   (major1) <  0 || \
   (major1) == 0 && (major2) <  2 || \
@@ -84,12 +84,12 @@
   (major1) == 0 && (major2) <  2 || \
   (major1) == 0 && (major2) == 2 && (minor) <= 2)
 
-/* package text-1.2.0.4 */
-#define VERSION_text "1.2.0.4"
+/* package text-1.1.0.0 */
+#define VERSION_text "1.1.0.0"
 #define MIN_VERSION_text(major1,major2,minor) (\
   (major1) <  1 || \
-  (major1) == 1 && (major2) <  2 || \
-  (major1) == 1 && (major2) == 2 && (minor) <= 0)
+  (major1) == 1 && (major2) <  1 || \
+  (major1) == 1 && (major2) == 1 && (minor) <= 0)
 
 /* package vector-0.10.9.1 */
 #define VERSION_vector "0.10.9.1"

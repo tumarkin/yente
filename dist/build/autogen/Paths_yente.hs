@@ -13,7 +13,7 @@ catchIO :: IO a -> (Exception.IOException -> IO a) -> IO a
 catchIO = Exception.catch
 
 version :: Version
-version = Version [0,1,0,0] []
+version = Version [0,2,1,0] []
 bindir, libdir, datadir, libexecdir, sysconfdir :: FilePath
 
 bindir     = "/Users/roberttumarkin/Library/Haskell/ghc-7.8.3/lib/yente-0.1.0.0/bin"
