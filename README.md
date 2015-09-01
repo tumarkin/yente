@@ -17,7 +17,8 @@ To do
 * Clone this repository.
 * Open a terminal shell and cd into the repository root directory. Then, execute the following commands:
   * `cabal update`
-  * `cabal install yente` 
+  * `cabal install yente.cabal` 
+* Copy the binary from the *dist* subdirectory to your executable path.
 
 
 # Usage
@@ -37,4 +38,7 @@ To do
   * Switch to ByteString or Text
   * Allow all unicode characters
   * Memoize name matching
+
+* Bugs
+  * Cosine without misspellings should not use intersaction (can lead to values > 1 if a word appears multiple times)
 

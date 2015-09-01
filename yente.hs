@@ -13,7 +13,7 @@ import System.Environment
 import System.Exit (exitSuccess)
 import Text.PhoneticCode.Phonix
 import Text.PhoneticCode.Soundex
-import Text.PhoneticCode.Metaphone
+-- import Text.PhoneticCode.Metaphone
 import qualified Data.ByteString.Lazy as BS
 {-import qualified Data.Map.Strict as DM-}
 import qualified Data.Csv as CSV -- cassava
@@ -84,7 +84,7 @@ yente yopts = do
   phoneticFcn    = case (phonetic_algorithm yopts) of
                       Nothing -> id
                       Just prePhonetic -> case (downcase prePhonetic) of 
-                                            "metaphone" -> metaphone
+                                            -- "metaphone" -> metaphone
                                             "soundex"   -> soundex True
                                             "phonix"    -> phonix
                                             _           -> error $ "Phonetic algorithm " ++ (prePhonetic) ++ " not recognized"

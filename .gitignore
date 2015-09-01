@@ -13,6 +13,7 @@
  *.prof
  *.aux
  *.hp
+ *.swp
  **/*.swp
  yente
  .DS_Store

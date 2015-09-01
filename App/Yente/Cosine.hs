@@ -28,6 +28,7 @@ cosine wts nameA nameB  --- The wts can be left blank eventually here
     score        = if Data.List.null intersection then 0
                    else scoreTokenList wts intersection/(fromJust $ (*) <$> norm nameA <*> norm nameB ) 
     intersection = intersect (tokens nameA) (tokens nameB)
+
     {-score        = if DM.null sharedTokens then 0-}
     {-               else newscore/(fromJust $ (*) <$> norm nameA <*> norm nameB ) -}
     {-sharedTokens = fromJust $ DM.intersection <$> tokenWts nameA <*> tokenWts nameB-}
