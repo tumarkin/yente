@@ -10,7 +10,6 @@ A matchmaker for textual data.
 * **Robust**: *yente* incorporates feautes that are commonly needed in name matching. It is both word-order and case insensitive (Shawn Spencer matches SPENCER, SHAWN). And, *yente* removes punctuation by default.
 * **Customizable**: Users may optionally allow for misspellings, implement phonetic algorithms, trim the constituent words of a name at a prespecified number of characters, output any number of potential matches (with and without ties), and combine any of the preceding customizations. 
 * **High-ish performance**: yente* is a multi-core program, allowing users to maximize computational power. Performance improvements are ongoing.
-* **Robust**: *yente* does not require significant 
 
 See below for installation, usage, best practices, and some examples of *yente*.
 
