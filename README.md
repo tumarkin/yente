@@ -69,21 +69,9 @@ Should you require any help, type `yente --help` to see options.
 
 # Best practices
 
+# About the name
 
-# To Do
+# Contributing
 
-* Usage
-  * **DONE** - Change CLI
-  * Metaphone
-  * Easy access to multi-core
 
-* Performance
-  * Create test set for performance analytics
-  * Circular implementation of token counting and name norming
-  * Switch to ByteString or Text
-  * Allow all unicode characters
-  * Memoize name matching
-
-* Bugs
-  * Cosine without misspellings should not use intersaction (can lead to values > 1 if a word appears multiple times)
 

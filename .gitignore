@@ -1,19 +1,20 @@
- l-dev
- **/*.o
- **/*.hi
- *.chi
- *.chs.h
- *.dyn_o
- *.dyn_hi
- .hpc
- .hsenv
- .cabal-sandbox/
- cabal.sandbox.config
- dist/
- *.prof
- *.aux
- *.hp
- *.swp
- **/*.swp
- yente
- .DS_Store
+l-dev
+**/*.o
+**/*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+dist/
+*.prof
+*.aux
+*.hp
+*.swp
+**/*.swp
+yente
+.DS_Store
+TODO.md
