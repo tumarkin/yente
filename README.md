@@ -4,7 +4,7 @@ A matchmaker for textual data.
 
 # Overview
 
-*yente* matches names across two data files. Matching is based on rareness of words, which means that one does not need to preprocess the names to remove common words (i.e. the, and) that are non-informative parts of names. It is highly customizable. The user may  allow for misspellings, implement phonetic algorithms, trim words at a prespecified number of characters, output any number of potential matches (with and without ties), and combine any of the preceding customizations. By construction, *yente* is word-order and case insensitive (Shawn Spencer matches SPENCER, SHAWN). *yente* also allows for simple multi-core processing of names to maximize computational power. 
+*yente* matches names across two data files. Matching is based on rareness of words, which means that one does not need to preprocess the names to remove common, non-informative words in names (i.e. and, the, company) It is highly customizable. The user may optionally allow for misspellings, implement phonetic algorithms, trim the constituent words of a name at a prespecified number of characters, output any number of potential matches (with and without ties), and combine any of the preceding customizations. By construction, *yente* is both word-order and case insensitive (Shawn Spencer matches SPENCER, SHAWN). *yente* is a multi-core program, allowing users to maximize computational power. 
     
 See below for installation, usage, best practices, and some examples of *yente*.
 
