@@ -15,47 +15,9 @@ A matchmaker for textual data.
 
 See the [wiki]<https://github.com/tumarkin/yente/wiki> for information on installation, usage, and best practices. It also includes some examples for matching problems that commonly arise in research. 
 
-# Advanced use
-
-*yente* consists of three parts:
-    1. A preprocessor transforms text via phonetic algorithms and/or word (phonetic code) length truncation.
-    2. A matcher that finds matches based on word rarity (cosine similarity with an inverse density function) and allows for misspellings.
-    3. An output control that provides a certain number of results and/or restricts results based on scores.
-
-## Preprocessing
-
-## Matching
-
-## Output
-
-## Multicore support
-
-## Examples
-
-# Best practices
-
-# Examples
-
-* Basic usage: `yente FROM-FILE TO-FILE -o OUTPUT-FILE`
-
-# FAQ
-
-* Why use Haskell?
-
-* What's with the name?
-
-* Where do those strange names in the examples come from?
-
-* Are there any planned improvements? 
-
-    * Performance
-    * Subgroup matching (allow for searching of names that belong to a shared group)
-    * Full unicode support
-
-
 # Contributing
 
-Submit a pull request and I will respond. *yente* 
+Submit a pull request and I will respond. 
 
-If *yente* has in any way made your life easier, please send me an email or star this repository. If you would like to see a feature added, send me an email.
+If *yente* has in any way made your life easier, please send me an email or star this repository. If you would like to see a feature added, let me know through the Github forum. 
 
