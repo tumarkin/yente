@@ -11,7 +11,9 @@ A matchmaker for textual data.
 * **Customizable**: Users may optionally allow for misspellings, implement phonetic algorithms, trim the constituent words of a name at a prespecified number of characters, output any number of potential matches (with and without ties), and combine any of the preceding customizations. 
 * **High-ish performance**: yente* is a multi-core program, allowing users to maximize computational power. Performance improvements are ongoing.
 
-See below for installation, usage, best practices, and some examples of *yente*.
+# Information 
+
+See the [wiki]<https://github.com/tumarkin/yente/wiki> for information on installation, usage, and best practices. It also includes some examples for matching problems that commonly arise in research. 
 
 # Installation
 
@@ -69,9 +71,28 @@ Should you require any help, type `yente --help` to see options.
 
 # Best practices
 
-# About the name
+# Examples
+
+* Basic usage: `yente FROM-FILE TO-FILE -o OUTPUT-FILE`
+
+# FAQ
+
+* Why use Haskell?
+
+* What's with the name?
+
+* Where do those strange names in the examples come from?
+
+* Are there any planned improvements? 
+
+    * Performance
+    * Subgroup matching (allow for searching of names that belong to a shared group)
+    * Full unicode support
+
 
 # Contributing
 
+Submit a pull request and I will respond. *yente* 
 
+If *yente* has in any way made your life easier, please send me an email or star this repository. If you would like to see a feature added, send me an email.
 
