@@ -11,10 +11,11 @@ module App.Yente.IO
     , defaultFileFormat
     ) where
 
-import App.Yente.Name
-import App.Yente.NameComparison
+import App.Yente.Types
 
+import qualified Data.ByteString      as B
 import qualified Data.ByteString.Lazy as BS
+import qualified Data.ByteString.Char8 as BSC
 import Data.Char (ord)
 import Data.Csv ((.=), (.:))
 import System.IO
@@ -25,6 +26,9 @@ import qualified Data.Text         as T
 import qualified Data.Vector       as V
 import qualified System.IO.Streams as Streams
 import Control.Applicative
+
+import Data.Csv (FromField, Parser, NamedRecord)
+import qualified Data.HashMap.Strict as HM
 
 
 
@@ -39,9 +43,11 @@ data SupportedFileFormat
     deriving (Show, Eq)
 
 instance CSV.FromNamedRecord Name where
-    parseNamedRecord m = emptyName <$>
-                         m .: "id" <*>
-                         m .: "name"
+    parseNamedRecord m = emptyName     <$>
+                         m .:   "id"   <*>
+                         m .:   "name" <*>
+                         m `lookupOptionalCol`  "group"
+
 
 
 instance CSV.ToNamedRecord NameComparison where
@@ -52,6 +58,19 @@ instance CSV.ToNamedRecord NameComparison where
                           , "id_from"   .= idx fn
                           , "id_to"     .= idx tn
                           ]
+
+
+
+lookupOptionalCol :: NamedRecord -> B.ByteString -> Parser (Maybe String)
+lookupOptionalCol n bs =
+  case HM.lookup bs n of
+    Nothing -> pure Nothing
+    Just s  -> pure . Just . BSC.unpack $ s
+
+
+
+
+
 
 
 

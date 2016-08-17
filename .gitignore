@@ -18,3 +18,5 @@ dist/
 yente
 .DS_Store
 TODO.md
+.stack-work/
+dist/*

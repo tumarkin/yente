@@ -25,6 +25,7 @@ data YenteOptions = YenteOptions
   , number_of_results   :: Int
   , include_ties        :: Bool
   , minimum_match_score :: Double
+  , subgroup_search     :: Bool
 
   , output_file         :: Maybe String
   } deriving (Show, Data, Typeable)
@@ -55,6 +56,11 @@ yenteOptions = YenteOptions
   , minimum_match_score  = 0.01 
                         &= opt "score"
                         &= help "The minimum score required to be considered a match. (Default 0.01) (TO DO: Fix, currently non-matches skipped)" &= groupname "Results"
+
+  , subgroup_search      = False 
+                        &= help "Search for matches in groups (requires 'group' column)."  
+                        &= name "g"
+                        &= groupname "Results"
 
   -- Output options
   , output_file          = def 

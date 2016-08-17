@@ -10,9 +10,10 @@ import Data.Maybe (fromJust)
 import Control.Applicative
 import Text.EditDistance
 
-import App.Yente.Name
-import App.Yente.NameComparison
-import App.Yente.TokenWeightMap
+import App.Yente.Types
+-- Name
+-- import App.Yente.NameComparison
+-- import App.Yente.TokenWeightMap
 
 
 -- compute cosine

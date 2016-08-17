@@ -1,54 +1,31 @@
---
-import Control.Applicative
+import Control.Arrow
 import Control.Monad
 import Data.Char (toLower)
 import Data.List
-import Data.List.Split
-import Data.Map.Strict ((!))
 import Data.Maybe (fromJust, isJust)
 import GHC.Conc (numCapabilities)
-import System.Console.CmdArgs
--- import System.Console.CmdTheLine
-import System.Environment
-import System.Exit (exitSuccess)
+import System.IO
 import Text.PhoneticCode.Phonix
 import Text.PhoneticCode.Soundex
--- import Text.PhoneticCode.Metaphone
-import qualified Data.ByteString.Lazy as BS
-{-import qualified Data.Map.Strict as DM-}
-import qualified Data.Csv as CSV -- cassava
-import qualified Data.Vector as V
-import System.IO
-
 import qualified System.IO.Streams as Streams
 
--- import System.IO.Streams.Csv -- cassava-streaming
-
-
-import Debug.Trace
 
 import App.Yente.CLICmdArgs
-import App.Yente.Name
-import App.Yente.NameComparison
-import App.Yente.TokenWeightMap
+import App.Yente.Types
+-- import App.Yente.TokenWeightMap
 import App.Yente.Cosine
 import App.Yente.IO
 import App.Yente.Parallel
-
-
 
 preProcessingChunkSize = 50
 comparisonChunkSize    = 20
 comparisonWithMisspellingChunkSize = 1
 
 
-                  
 
 
 yente :: YenteOptions -> IO ()
 yente yopts = do
-
-
 
   putStrLn $ "Number of cores: " ++ show numCapabilities
   putStrLn $ unwords ["Matching from", show (fromFile yopts), "to", show (toFile yopts)]
@@ -66,15 +43,23 @@ yente yopts = do
   toRawNames   <- filepathToNames ( toFile yopts)   -- Read in names 
                   >>= (return . pMapChunk preProcessingChunkSize (encodeName namePrepFcn)) -- Encode in parallel
         
-  let wts             = computeWeights (map tokens toRawNames)
-
+  -- let wts       = computeWeights (map tokens toRawNames)
+  let wts       = computeWeightsFromNames toRawNames
       fromNames = pMapChunk preProcessingChunkSize (normName wts) fromRawNames
       toNames   = map (normName wts) toRawNames
 
-  let results = concatMap (selectionFcn . compareNameListToName misspellingFactor wts toNames) $ fromNames
 
+  -- Compute the matches ( select <<< compute weights <<< filter) 
+  let results = concatMap (selectionFcn . uncurry (compareNameListToName misspellingFactor wts) . (subgroupFilterFcn toNames &&& id)) $ fromNames
+  -- let results = concatMap ( arr selectionFcn  -- [NameComparison]
+  --                       <<< (arr . uncurry) (compareNameListToName misspellingFactor wts) -- [NameComparison]
+  --                       <<< (subgroupFilterFcn toNames &&& id))  --- ([FilteredNames], FromName)
+  --                       $ fromNames
+
+  -- Output the results
   mapM_ (\nc -> Streams.write (Just nc) matchWriter >> when outputRequested (Streams.write (Just nc) stdMirror)) $ results
   Streams.write Nothing matchWriter
+
 
     where 
   
@@ -93,7 +78,7 @@ yente yopts = do
                       Just n  -> take n
                       Nothing -> id
 
---   -- Output configuration
+  -- Output configuration
   outFile = output_file yopts
   outputRequested = isJust outFile
   fileFormat      = case outFile of
@@ -103,13 +88,24 @@ yente yopts = do
   -- Matching configuration
   misspellingFactor = misspelling_penalty yopts 
 
-  --- Output selection function configuration
+  --- Matching selection function configuration
   selectionFcn = selectBest matchesWithTies matchesToOutput . filterComparison matchMinimumScore
 
-  --- Other configuration
   matchesToOutput = number_of_results yopts
   matchesWithTies = include_ties yopts
   matchMinimumScore = minimum_match_score yopts
+
+  -- Subgroup selection function
+  subgroupFilterFcn = if subgroup_search yopts then subgroupFilter
+                      else subgroupPassThru
+
+
+subgroupFilter :: [Name] -> Name -> [Name]
+subgroupFilter ns n = filter (sameGroup n) ns
+
+subgroupPassThru :: [Name] -> Name -> [Name]
+subgroupPassThru ns _ = ns
+              
 
 
 
@@ -149,7 +145,4 @@ downcase = map toLower
 
 main = yente =<< parseCLI
 
--- --
--- main :: IO ()
--- main = run ( term, termInfo )
 
