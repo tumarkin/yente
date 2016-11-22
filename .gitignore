@@ -15,7 +15,6 @@ dist/
 *.hp
 *.swp
 **/*.swp
-yente
 .DS_Store
 TODO.md
 .stack-work/
