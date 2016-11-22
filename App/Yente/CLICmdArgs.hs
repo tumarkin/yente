@@ -6,10 +6,14 @@ module App.Yente.CLICmdArgs
   ) where
 
 import System.Console.CmdArgs.Implicit
+import Data.Maybe (isJust)
 
 
 -- Use to debug CLI
-parseCLI = cmdArgs yenteOptions
+parseCLI = do
+  yo <- cmdArgs yenteOptions
+  _  <- validateOptions yo
+  return yo
 -- main = print =<< cmdArgs yenteOptions
 
 
@@ -19,6 +23,7 @@ data YenteOptions = YenteOptions
   { fromFile            :: String
   , toFile              :: String
   , phonetic_algorithm  :: Maybe String
+  , retain_numeric      :: Bool
   , max_token_length    :: Maybe Int
   , misspelling_penalty :: Maybe Double
 
@@ -40,8 +45,9 @@ yenteOptions = YenteOptions
   , toFile             = def &= argPos 1 &= typ "TO-FILE"
 
   -- Preprocessing options
-  , phonetic_algorithm = def &= opt "phonetic-algorithm" &= help "Phoentic algorithm: Metaphone, Phonix, SoundEx (TO DO: Metaphone)" &= name "p"&= groupname "Preprocessing" 
-  , max_token_length = def  &= opt "token" &= help "Trim each word to have a maximum number of letters. Can be useful for phonetic based matching." &= groupname "Preprocessing" 
+  , phonetic_algorithm = def   &= opt "phonetic-algorithm" &= help "Phoentic algorithm: Metaphone, Phonix, SoundEx (TO DO: Metaphone)" &= name "p"     &= groupname "Preprocessing" 
+  , max_token_length   = def   &= opt "token" &= help "Trim each word to have a maximum number of letters. Can be useful for phonetic based matching." &= groupname "Preprocessing" 
+  , retain_numeric     = False &= help "Retain numerical characters. Does not work with phonetic algorithms."                  &= groupname "Preprocessing"
 
   -- Matching options
   , misspelling_penalty = def &= opt "1" &= help "The misspelling penalty factor. (Empty to not allow misspellings, otherwise percent correct letters raised to factor serves as penalty)" &= groupname "Matching"
@@ -73,6 +79,13 @@ yenteOptions = YenteOptions
   &= helpArg    [explicit, name "help", groupname "Information"]
   &= versionArg [explicit, name "version", name "V", groupname "Information"]
 
+
+validateOptions :: YenteOptions -> IO ()
+validateOptions yo 
+  = if   (isJust (phonetic_algorithm yo) && retain_numeric yo) 
+    then error "Phonetic algorithms are not compatible with retaining numeric characters."
+    else return ()
+  
 
 
 
