@@ -2,7 +2,7 @@
 --  see http://haskell.org/cabal/users-guide/
 
 name:                yente
-version:             0.2.1.0
+version:             0.2.1.1
 synopsis:            A matchmaker for textual data.
 -- description:         
 homepage:            https://github.com/tumarkin/yente
@@ -18,8 +18,21 @@ cabal-version:       >=1.10
 
 
 executable yente
-  main-is:             yente.hs
-  -- other-modules:       
+  main-is:             App/yente.hs
+
+  other-modules:       App.Yente.CLICmdArgs
+                     , App.Yente.Cosine
+                     , App.Yente.IO
+                     , App.Yente.Levenshtein
+                     , App.Yente.Parallel
+                     , App.Yente.Prelude
+                     , App.Yente.RunMatch
+                     , App.Yente.Types
+                     , App.Yente.Types.Mode
+                     , App.Yente.Types.Name
+                     , App.Yente.Types.NameComparison
+                     , App.Yente.Types.TokenWeightMap
+
   other-extensions:    OverloadedStrings
   build-depends:       base >=4.7, 
                        cmdargs,
@@ -38,6 +51,8 @@ executable yente
                        unordered-containers
   -- hs-source-dirs:      
   default-language:    Haskell2010
+  default-extensions:  NoImplicitPrelude
+                     , RecordWildCards
 
   -- Enable threaded and easy access to multicore
   -- http://stackoverflow.com/questions/6505648/building-with-runtime-flags-using-cabal-and-ghc
@@ -46,7 +61,22 @@ executable yente
 
 
 executable yentl
-  main-is:             yentl.hs
+  main-is:             App/yentl.hs
+
+  other-modules:               App.Yente.CLICmdArgs
+                             , App.Yente.Cosine
+                             , App.Yente.IO
+                             , App.Yente.Levenshtein
+                             , App.Yente.Parallel
+                             , App.Yente.Prelude
+                             , App.Yente.RunMatch
+                             , App.Yente.Types
+                             , App.Yente.Types.Mode
+                             , App.Yente.Types.Name
+                             , App.Yente.Types.NameComparison
+                             , App.Yente.Types.TokenWeightMap
+
+
   -- other-modules:       
   other-extensions:    OverloadedStrings
   build-depends:       base >=4.7, 
@@ -64,8 +94,12 @@ executable yentl
                        phonetic-code,
                        split,
                        unordered-containers
+
+
   -- hs-source-dirs:      
   default-language:    Haskell2010
+  default-extensions:  NoImplicitPrelude
+                     , RecordWildCards
 
   -- Enable threaded and easy access to multicore
   -- http://stackoverflow.com/questions/6505648/building-with-runtime-flags-using-cabal-and-ghc

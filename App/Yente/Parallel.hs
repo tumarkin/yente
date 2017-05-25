@@ -5,6 +5,7 @@ module App.Yente.Parallel
 
 import Control.Parallel
 import Control.Parallel.Strategies
+import App.Yente.Prelude
 
 pMap :: (NFData b) 
      => (a-> b) 

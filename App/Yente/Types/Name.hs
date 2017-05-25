@@ -6,22 +6,24 @@ module App.Yente.Types.Name
     , normName
     ) where
 
-import Control.Applicative
-import Control.DeepSeq
-import Data.Char (isLetter, isSpace, toLower, isNumber)
-import qualified Data.Map.Strict as DM
+import           Control.DeepSeq
+import           Data.Char                      (isLetter, isNumber, isSpace)
+-- import Data.Text (Text, toLower)
+-- import qualified Data.Map.Strict                as DM
+import qualified Data.Text as T
 
-import App.Yente.Types.TokenWeightMap
+import           App.Yente.Types.TokenWeightMap
+import           App.Yente.Prelude hiding (group)
 
 
 -- Name data type
-data Name = Name 
-  { idx      :: !String
-  , name     :: !String
-  , tokens   :: ![String]
-  , group    :: Maybe String
+data Name = Name
+  { idx      :: !Text
+  , name     :: !Text
+  , tokens   :: ![Text]
+  , group    :: Maybe Text
   , norm     :: Maybe Double
-  , tokenWts :: Maybe [(String, Double)] 
+  , tokenWts :: Maybe [(Text, Double)]
   } deriving (Show, Eq)
 
 instance NFData Name where
@@ -36,9 +38,9 @@ instance NFData Name where
 
 -- Function to create empty name data from id and name strings
 -- during cassava import
-emptyName :: String -- ^ Id
-          -> String -- ^ Name
-          -> Maybe String -- ^ Group
+emptyName :: Text -- ^ Id
+          -> Text -- ^ Name
+          -> Maybe Text -- ^ Group
           -> Name
 emptyName i n g = Name{ idx      = i
                     , name     = n
@@ -54,29 +56,26 @@ sameGroup a b = group a == group b
 
 
 -- Encode the name tokens
-encodeName  :: Bool               -- ^ Retain numeric characters
-            -> (String -> String) -- ^ Encoding function
-            -> Name               -- ^ Source name
+encodeName  :: Bool           -- ^ Retain numeric characters
+            -> (Text -> Text) -- ^ Encoding function
+            -> Name          -- ^ Source name
             -> Name
 encodeName retainNumeric encodingFcn n
-    = n{tokens   = map (encodingFcn . convertCase) . words . map filterLetters $ name n
-       }
-    where 
-  convertCase     = map toLower
-  filterLetters x = if charFilter x then x else ' '
-  charFilter      = if retainNumeric 
-                    then \c -> or $ [isLetter, isNumber] <*> [c]
-                    else isLetter
-                  
+  = n{tokens   = map (encodingFcn . toLower) . T.words . T.map filterLetters $ name n}
+  where
+    filterLetters x = if charFilter x then x else ' '
+    charFilter      = if retainNumeric
+                      then \c -> or $ [isLetter, isNumber] <*> [c]
+                      else isLetter
 
 
 -- Compute the name norm score given a token weight map
 normName :: TokenWeightMap -> Name -> Name
-normName twm n = n{ norm     = Just (sqrt (twm `scoreTokenList` tokens n)) 
+normName twm n = n{ norm     = Just (sqrt (twm `scoreTokenList` tokens n))
                   , tokenWts = Just tws
                   }
-    where
-  tws = [(x, twm `findWeight` x) | x <- tokens n]
+  where
+    tws = [(x, twm `findWeight` x) | x <- tokens n]
 
 
 

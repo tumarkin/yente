@@ -3,14 +3,13 @@ module App.Yente.Types (
   , computeWeightsFromNames
   ) where
 
-import Data.List
-import Data.Maybe
-import qualified Data.Map.Strict as DM
 
 import App.Yente.Types.Mode           as X
 import App.Yente.Types.Name           as X
 import App.Yente.Types.NameComparison as X
 import App.Yente.Types.TokenWeightMap as X
+
+import App.Yente.Prelude
 
 
 
@@ -19,14 +18,14 @@ import App.Yente.Types.TokenWeightMap as X
 computeWeightsFromNames :: [Name] -- ^ List of names
                 -> TokenWeightMap
 computeWeightsFromNames ns =
-    TokenWeightMap{ tokenWeights     = tw
-                  , rarestTokenValue = rtv
-                  }
-    where
-  score wds = (head wds, log(corpsize/(fromIntegral . length $ wds)))
-  allTokens = map tokens ns -- [[String]]
-  tkns      = Data.List.group . sort . concatMap (nub) $ allTokens
-  corpsize  = fromIntegral . length $ allTokens
-  tw        = DM.fromList $ map score tkns
-  rtv       = maximum . DM.elems $ tw --- This value is stored with the token weight map for efficiency
+  TokenWeightMap{ tokenWeights     = tw
+                , rarestTokenValue = rtv
+                }
+  where
+    score wds = (head wds, log(corpsize/(fromIntegral . length $ wds)))
+    allTokens = map tokens ns -- [[String]]
+    tkns      = App.Yente.Prelude.group . sort . concatMap nub $ allTokens
+    corpsize  = fromIntegral . length $ allTokens
+    tw        = fromList $ map score tkns
+    rtv       = maximum . elems $ tw --- This value is stored with the token weight map for efficiency
 
