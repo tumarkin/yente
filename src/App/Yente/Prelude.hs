@@ -2,7 +2,7 @@ module App.Yente.Prelude
   ( module X
   , downcaseString
 
-  -- * Data.Text
+   -- * Data.Text
   , Text
   , toLower
   , tlength
@@ -12,6 +12,8 @@ module App.Yente.Prelude
   , findWithDefault
   , elems
   , fromList
+  , insertWith
+  , emptyMap
 
   -- * Data.Funcvtion
   , on
@@ -19,11 +21,15 @@ module App.Yente.Prelude
   -- * Data.Maybe
   , isJust
 
+  -- * Data.Vector
+  , Vector
+
   -- * EditCosts
   , restrictedDamerauLevenshteinDistanceText 
   ) where
 
 import           Prelude             as X
+-- import           ClassyPrelude       as X
 
 import           Text.EditDistance   as X
 import           Data.Maybe                      (isJust)
@@ -31,8 +37,9 @@ import           Control.Applicative as X
 import           Control.Monad       as X
 import           Data.List           as X
 import           Data.Function       (on)
-import           Data.Map.Strict     (Map, elems, findWithDefault, fromList)
+import           Data.Map.Strict     (Map, elems, findWithDefault, fromList, insertWith, empty)
 import           Data.Text           (Text, toLower, unpack, pack)
+import           Data.Vector         (Vector)
 
 import qualified Data.Text           as T
 
@@ -45,3 +52,5 @@ restrictedDamerauLevenshteinDistanceText ec t1 t2 =
 
 tlength :: Text -> Int
 tlength = T.length
+
+emptyMap = Data.Map.Strict.empty

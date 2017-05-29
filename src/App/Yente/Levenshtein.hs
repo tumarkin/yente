@@ -2,8 +2,6 @@ module App.Yente.Levenshtein
     ( levenshtein
     ) where 
 
-import Text.EditDistance
-
 import App.Yente.Types
 import App.Yente.Prelude
 

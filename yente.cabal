@@ -4,7 +4,7 @@
 name:                yente
 version:             0.2.1.1
 synopsis:            A matchmaker for textual data.
--- description:         
+description:         See README.md
 homepage:            https://github.com/tumarkin/yente
 license:             BSD3
 license-file:        LICENSE
@@ -15,12 +15,11 @@ category:            Text
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
+-- source-repository:   https://github.com/tumarkin/yente
 
-
-executable yente
-  main-is:             App/yente.hs
-
-  other-modules:       App.Yente.CLICmdArgs
+library 
+  hs-source-dirs:      src
+  exposed-modules:     App.Yente.CLICmdArgs
                      , App.Yente.Cosine
                      , App.Yente.IO
                      , App.Yente.Levenshtein
@@ -28,28 +27,40 @@ executable yente
                      , App.Yente.Prelude
                      , App.Yente.RunMatch
                      , App.Yente.Types
-                     , App.Yente.Types.Mode
-                     , App.Yente.Types.Name
-                     , App.Yente.Types.NameComparison
-                     , App.Yente.Types.TokenWeightMap
+                     -- , App.Yente.Types.Mode
+                     -- , App.Yente.Types.Name
+                     -- , App.Yente.Types.NameComparison
+                     -- , App.Yente.Types.TokenWeightMap
 
-  other-extensions:    OverloadedStrings
-  build-depends:       base >=4.7, 
-                       cmdargs,
-                       containers,
-                       edit-distance,
+  build-depends:       base >=4.7 && < 5,
                        bytestring,
                        cassava,
                        cassava-streams,
-                       text,
-                       vector,
-                       io-streams,
+                       cmdargs,
+                       containers,
                        deepseq,
+                       edit-distance,
+                       io-streams,
                        parallel,
                        phonetic-code,
-                       split,
-                       unordered-containers
-  -- hs-source-dirs:      
+                       text,
+                       unordered-containers,
+                       vector,
+                       vector-th-unbox
+                       -- split,
+                       -- classy-prelude
+
+  default-language:    Haskell2010
+  default-extensions:  NoImplicitPrelude
+                     , RecordWildCards
+
+
+
+executable yente
+  main-is:             App/yente.hs
+  build-depends:       base >= 4.7 && < 5
+                     , yente
+
   default-language:    Haskell2010
   default-extensions:  NoImplicitPrelude
                      , RecordWildCards
@@ -62,41 +73,9 @@ executable yente
 
 executable yentl
   main-is:             App/yentl.hs
+  build-depends:       base >= 4.7 && < 5
+                     , yente
 
-  other-modules:               App.Yente.CLICmdArgs
-                             , App.Yente.Cosine
-                             , App.Yente.IO
-                             , App.Yente.Levenshtein
-                             , App.Yente.Parallel
-                             , App.Yente.Prelude
-                             , App.Yente.RunMatch
-                             , App.Yente.Types
-                             , App.Yente.Types.Mode
-                             , App.Yente.Types.Name
-                             , App.Yente.Types.NameComparison
-                             , App.Yente.Types.TokenWeightMap
-
-
-  -- other-modules:       
-  other-extensions:    OverloadedStrings
-  build-depends:       base >=4.7, 
-                       cmdargs,
-                       containers,
-                       edit-distance,
-                       bytestring,
-                       cassava,
-                       cassava-streams,
-                       text,
-                       vector,
-                       io-streams,
-                       deepseq,
-                       parallel,
-                       phonetic-code,
-                       split,
-                       unordered-containers
-
-
-  -- hs-source-dirs:      
   default-language:    Haskell2010
   default-extensions:  NoImplicitPrelude
                      , RecordWildCards

@@ -1,11 +1,14 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module App.Yente.IO
     ( NameComparison(..)
     , handleToNameWriter
     , filepathToNameWriter
     {-, handleToNameReader-}
-    , filepathToNames
+    , loadNameList
+    , loadNameVector
     , getFileFormat
     , SupportedFileFormat(..)
     , defaultFileFormat
@@ -17,19 +20,17 @@ import qualified Data.ByteString       as B
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy  as BS
 import           Data.Char             (ord)
-import           Data.Csv              ((.:), (.=), FromField, NamedRecord, Parser)
+import           Data.Csv              (FromField, NamedRecord, Parser, (.:), (.=))
 import qualified Data.Csv              as CSV
--- import qualified Data.Map.Strict       as DM
+import qualified Data.HashMap.Strict   as HM
 import qualified Data.Text             as T
 import qualified Data.Vector           as V
 import           System.IO
 import qualified System.IO.Streams     as Streams
 import           System.IO.Streams.Csv
 
-import qualified Data.HashMap.Strict   as HM
-
+import           App.Yente.Prelude
 import           App.Yente.Types
-import App.Yente.Prelude
 
 
 
@@ -61,20 +62,11 @@ instance CSV.ToNamedRecord NameComparison where
                           ]
 
 
-
 lookupOptionalCol :: NamedRecord -> B.ByteString -> Parser (Maybe Text)
 lookupOptionalCol n bs =
   case HM.lookup bs n of
     Nothing -> pure Nothing
     Just s  -> pure . Just . T.pack . BSC.unpack $ s
-
-
-
-
-
-
-
-
 
 
 -- Default file format
@@ -91,12 +83,7 @@ getFileFormat fn = case extension of
     extension = T.unpack . T.toLower . snd $ T.breakOnEnd (T.pack ".") (T.pack fn)
 
 
-
-
-
-
 -- Writing functions
-
 handleToNameWriter :: SupportedFileFormat
                    -> Handle
                    -> IO (Streams.OutputStream NameComparison)
@@ -116,13 +103,12 @@ filepathToNameWriter ff outFileName
 
 
 -- Reading functions
-filepathToNames :: String
-                 -> IO [ Name ]
-filepathToNames inFileName
-    = do
+loadNameVector :: String
+                 -> IO (Vector Name)
+loadNameVector inFileName = do
     bstring         <- BS.readFile inFileName
     let decodedFile  = CSV.decodeByNameWith (decoding fileformat) bstring
-    return (V.toList . snd . fromEither $ decodedFile)
+    return (snd . fromEither $ decodedFile)
   where
     decoding TabDelimited   = tabDecoding
     decoding CommaDelimited = csvDecoding
@@ -131,15 +117,11 @@ filepathToNames inFileName
         Right x -> x
     fileformat = getFileFormat inFileName
 
-{-handleToNameReader :: SupportedFileFormat -}
-{-                      -> Handle -}
-{-                      -> IO (Streams.InputStream (Either  String Name))-}
-{-handleToNameReader ff h -}
-{-    = Streams.handleToInputStream h >>= decodeStreamByNameWith -}
-{-                                        (decoding ff) -}
-{-  where-}
-{-    decoding TabDelimited   = tabDecoding-}
-{-    decoding CommaDelimited = csvDecoding-}
+
+loadNameList :: String
+                 -> IO [ Name ]
+loadNameList inFileName =
+    V.toList <$> loadNameVector inFileName
 
 
 
@@ -151,4 +133,14 @@ tabEncoding = CSV.defaultEncodeOptions { CSV.encDelimiter = fromIntegral (ord '\
 csvDecoding = CSV.defaultDecodeOptions
 tabDecoding = CSV.defaultDecodeOptions { CSV.decDelimiter = fromIntegral (ord '\t') }
 
+
+{-handleToNameReader :: SupportedFileFormat -}
+{-                      -> Handle -}
+{-                      -> IO (Streams.InputStream (Either  String Name))-}
+{-handleToNameReader ff h -}
+{-    = Streams.handleToInputStream h >>= decodeStreamByNameWith -}
+{-                                        (decoding ff) -}
+{-  where-}
+{-    decoding TabDelimited   = tabDecoding-}
+{-    decoding CommaDelimited = csvDecoding-}
 

@@ -2,40 +2,36 @@
 
 module App.Yente.CLICmdArgs
   ( YenteOptions(..)
-  , yenteOptions
   , parseCLI
   ) where
 
-import           App.Yente.Prelude
 import           System.Console.CmdArgs.Implicit
 
+import           App.Yente.Prelude
 
--- Use to debug CLI
+
+parseCLI :: IO YenteOptions
 parseCLI = do
   yo <- cmdArgs yenteOptions
-  _  <- validateOptions yo
+  validateOptions yo
   return yo
--- main = print =<< cmdArgs yenteOptions
-
-
 
 
 data YenteOptions = YenteOptions
-  { fromFile            :: String
-  , toFile              :: String
+  { fromFile           :: String
+  , toFile             :: String
   , phoneticAlgorithm  :: Maybe String
-  , retainNumeric       :: Bool
-  , maxTokenLength    :: Maybe Int
+  , retainNumeric      :: Bool
+  , maxTokenLength     :: Maybe Int
   , misspellingPenalty :: Maybe Double
 
-  , numberOfResults   :: Int
+  , numberOfResults    :: Int
   , includeTies        :: Bool
-  , minimumMatchScore :: Double
+  , minimumMatchScore  :: Double
   , subgroupSearch     :: Bool
 
   , outputFile         :: Maybe String
   } deriving (Show, Data, Typeable)
-
 
 
 
@@ -82,10 +78,9 @@ yenteOptions = YenteOptions
 
 
 validateOptions :: YenteOptions -> IO ()
-validateOptions yo
-  = if   (isJust (phoneticAlgorithm yo) && retainNumeric  yo)
-    then error "Phonetic algorithms are not compatible with retaining numeric characters."
-    else return ()
+validateOptions YenteOptions{..}
+  = when (isJust phoneticAlgorithm && retainNumeric) 
+         (error "Phonetic algorithms are not compatible with retaining numeric characters.")
 
 
 
