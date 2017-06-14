@@ -5,18 +5,16 @@ module App.Yente.Levenshtein
 import App.Yente.Types
 import App.Yente.Prelude
 
-import qualified Data.Text as T
 
-
-levenshtein :: Name -> Name -> NameComparison
+levenshtein :: NameTokenList -> NameTokenList -> NameComparison 
 levenshtein nameA nameB = NameComparison 
-  { fromComparison = nameA
-  , toComparison   = nameB
-  , score          = 1 - fromIntegral (restrictedDamerauLevenshteinDistanceText defaultEditCosts joinedTokensA joinedTokensB) / fromIntegral (tlength joinedTokensA)
+  { fromName = toNameRaw nameA
+  , toName   = toNameRaw nameB
+  , score    = 1 - fromIntegral (restrictedDamerauLevenshteinDistanceText defaultEditCosts joinedTokensA joinedTokensB) / fromIntegral (tlength joinedTokensA)
   }
   where
-    joinedTokensA = T.unwords . tokens $ nameA
-    joinedTokensB = T.unwords . tokens $ nameB
+    joinedTokensA = tunwords . tokenList $ nameA
+    joinedTokensB = tunwords . tokenList $ nameB
 
 
 

@@ -22,6 +22,7 @@ data YenteOptions = YenteOptions
   , toFile             :: String
   , phoneticAlgorithm  :: Maybe String
   , retainNumeric      :: Bool
+  , retainUnicode      :: Bool
   , maxTokenLength     :: Maybe Int
   , misspellingPenalty :: Maybe Double
 
@@ -45,6 +46,7 @@ yenteOptions = YenteOptions
   , phoneticAlgorithm = def   &= opt "phonetic-algorithm" &= help "Phoentic algorithm: Metaphone, Phonix, SoundEx (TO DO: Metaphone)" &= name "p"     &= groupname "Preprocessing"
   , maxTokenLength   = def   &= opt "token" &= help "Trim each word to have a maximum number of letters. Can be useful for phonetic based matching." &= groupname "Preprocessing"
   , retainNumeric      = False &= help "Retain numerical characters. Does not work with phonetic algorithms."                  &= groupname "Preprocessing"
+  , retainUnicode      = False &= help "Retain unicode characters. Does not work with phonetic algorithms."                  &= groupname "Preprocessing"
 
   -- Matching options
   , misspellingPenalty = def &= opt "1" &= help "The misspelling penalty factor. (Empty to not allow misspellings, otherwise percent correct letters raised to factor serves as penalty)" &= groupname "Matching"

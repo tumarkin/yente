@@ -21,6 +21,7 @@ extra-deps:
 - cassava-streams-0.3.0.0
 - phonetic-code-0.1.1.1
 - text-1.2.2.1
+- unidecode-0.1.0.4
 
 # Override default flag values for local packages and extra-deps
 flags: {}

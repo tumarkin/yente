@@ -44,7 +44,7 @@ data SupportedFileFormat
     | TabDelimited
     deriving (Show, Eq)
 
-instance CSV.FromNamedRecord Name where
+instance CSV.FromNamedRecord NameRaw where
     parseNamedRecord m = emptyName
                       <$> m .:   "id"
                       <*> m .:   "name"
@@ -53,13 +53,16 @@ instance CSV.FromNamedRecord Name where
 
 
 instance CSV.ToNamedRecord NameComparison where
-    toNamedRecord (NameComparison fn tn s )
-        = CSV.namedRecord [ "score"     .= s
+    toNamedRecord NameComparison{..}
+        = CSV.namedRecord [ "score"     .= score
                           , "name_from" .= name fn
                           , "name_to"   .= name tn
                           , "id_from"   .= idx fn
                           , "id_to"     .= idx tn
                           ]
+      where
+        fn = unNameRaw fromName
+        tn = unNameRaw toName
 
 
 lookupOptionalCol :: NamedRecord -> B.ByteString -> Parser (Maybe Text)
@@ -104,7 +107,7 @@ filepathToNameWriter ff outFileName
 
 -- Reading functions
 loadNameVector :: String
-                 -> IO (Vector Name)
+                 -> IO (Vector NameRaw)
 loadNameVector inFileName = do
     bstring         <- BS.readFile inFileName
     let decodedFile  = CSV.decodeByNameWith (decoding fileformat) bstring
@@ -119,7 +122,7 @@ loadNameVector inFileName = do
 
 
 loadNameList :: String
-                 -> IO [ Name ]
+                 -> IO [NameRaw]
 loadNameList inFileName =
     V.toList <$> loadNameVector inFileName
 
@@ -143,4 +146,6 @@ tabDecoding = CSV.defaultDecodeOptions { CSV.decDelimiter = fromIntegral (ord '\
 {-  where-}
 {-    decoding TabDelimited   = tabDecoding-}
 {-    decoding CommaDelimited = csvDecoding-}
+
+
 
