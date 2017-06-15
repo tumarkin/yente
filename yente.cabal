@@ -2,7 +2,7 @@
 --  see http://haskell.org/cabal/users-guide/
 
 name:                yente
-version:             0.3.0.0
+version:             0.3.0.1
 synopsis:            A matchmaker for textual data.
 description:         See README.md
 homepage:            https://github.com/tumarkin/yente

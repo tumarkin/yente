@@ -30,37 +30,28 @@ comparisonWithMisspellingChunkSize = 1
 
 -- Entry into yente algorithm
 yente :: YenteMode -> YenteOptions -> IO ()
-yente Cosine yo@YenteOptions{..} = yenteG trans comp yo
+yente Cosine yo = yenteG trans comp yo
   where
-    trans :: NamePrepFcn -> ([NameRaw], [NameRaw]) -> ([NameNormed], [NameNormed])
-    trans namePrepFcn (fn, tn) = (map (normName wts) fromNamesTokenized, map (normName wts) toNamesTokenized)
+    trans :: ([NameTokenList], [NameTokenList]) -> ([NameNormed], [NameNormed])
+    trans (fn, tn) = (map (normName wts) fromNamesTokenized, map (normName wts) toNamesTokenized)
       where
         wts                = computeIDF toNamesTokenized
-        fromNamesTokenized = map (encodeName retainNumeric namePrepFcn) fn
-        toNamesTokenized   = map (encodeName retainNumeric namePrepFcn) tn
+        fromNamesTokenized = toNameTokenCount <$> fn
+        toNamesTokenized   = toNameTokenCount <$> tn
 
 
     comp :: [NameNormed] -> NameNormed -> [NameComparison]
-    comp  = compareNameListToNameCosine misspellingPenalty
+    comp  = compareNameListToNameCosine (misspellingPenalty yo)
 
 
 
-yente Levenshtein yo@YenteOptions{..} = yenteG trans comp yo
-  where
-    trans :: NamePrepFcn -> ([NameRaw], [NameRaw]) -> ([NameTokenList], [NameTokenList])
-    trans namePrepFcn (fn, tn) = (map (encodeNameTokenList retainNumeric namePrepFcn) fn, map (encodeNameTokenList retainNumeric namePrepFcn) tn)
-
-    comp :: [NameTokenList] -> NameTokenList -> [NameComparison]
-    comp  = compareNameListToNameLev
-
-
-type NamePrepFcn = Text -> Text
+yente Levenshtein yo = yenteG id compareNameListToNameLev yo
 
 
 -- | Generic yente algorithm capable of handling generic name
 -- transformation and comparison functions.
 yenteG :: NameLike a 
-      => (NamePrepFcn -> ([NameRaw], [NameRaw]) -> ([a], [a]))  -- | Transformer of raw names
+      => (([NameTokenList], [NameTokenList]) -> ([a], [a]))  -- | Transformer of raw names
       -> ([a] -> a -> [NameComparison])          -- | Comparison function
       -> YenteOptions
       -> IO ()
@@ -76,10 +67,11 @@ yenteG transform comp YenteOptions{..} = do
 
 
     --- Build the list of potential matches and the cosine weights
-    fromNameRaw <- loadNameList fromFile
-    toNameRaw   <- loadNameList toFile
+    let nameEncoder = encodeNameTokenList retainNumeric namePrepFcn
+    fromNameTL <- map nameEncoder <$> loadNameList fromFile
+    toNameTL   <- map nameEncoder <$> loadNameList toFile
 
-    let (fromNames, toNames) = transform namePrepFcn (fromNameRaw, toNameRaw)
+    let (fromNames, toNames) = transform (fromNameTL, toNameTL)
 
     -- Compute the matches ( select <<< compute weights <<< filter)
     let results = concatMap (selectionFcn . uncurry comp . (subgroupFilterFcn toNames &&& id)) fromNames
@@ -90,11 +82,11 @@ yenteG transform comp YenteOptions{..} = do
 
   where
 
-    namePrepFcn :: NamePrepFcn
-    namePrepFcn    = letterLimitFcn . phoneticFcn . unicodeFcn
+    namePrepFcn :: Text -> Text
+    namePrepFcn = letterLimitFcn . phoneticFcn . unicodeFcn
 
     phoneticFcn :: Text -> Text
-    phoneticFcn    = case phoneticAlgorithm of
+    phoneticFcn = case phoneticAlgorithm of
       Nothing -> id
       Just prePhonetic -> case downcaseString prePhonetic of
         -- "metaphone" -> metaphone
@@ -118,75 +110,6 @@ yenteG transform comp YenteOptions{..} = do
 
     -- Subgroup selection function
     subgroupFilterFcn = if subgroupSearch then subgroupFilter else subgroupPassThru
-
-
-
--- yente :: YenteMode -> YenteOptions -> IO ()
--- yente ymode YenteOptions{..} = do
-
---   putStrLn $ unwords ["Number of cores:", show numCapabilities]
---   putStrLn $ unwords ["Matching from", show fromFile , "to", show toFile ]
-
---   matchWriter <- case outputFile of
---                   Nothing       -> handleToNameWriter fileFormat stdout
---                   Just outfname -> filepathToNameWriter fileFormat outfname
-
---   stdMirror   <- handleToNameWriter fileFormat stdout
-
-
---   --- Build the list of potential matches and the cosine weights
---   fromNamesTokenized <- loadAndEncodeNameList fromFile
---   toNamesTokenized   <- loadAndEncodeNameList toFile
-
---   let wts       = computeIDF toNamesTokenized
---       fromNames = normName wts <$> fromNamesTokenized
---       toNames   = normName wts <$> toNamesTokenized
-
---       -- toNamesV :: Vector Name
---       -- toNamesV  = V.fromList toNames
-
---   -- Compute the matches ( select <<< compute weights <<< filter)
---   let results = concatMap (selectionFcn . uncurry (compareNameListToName ymode misspellingPenalty) . (subgroupFilterFcn toNames &&& id)) fromNames
-
---   -- -- Output the results
---   mapM_ (\nc -> Streams.write (Just nc) matchWriter >> when outputRequested (Streams.write (Just nc) stdMirror)) results
---   Streams.write Nothing matchWriter
-
---   return ()
-
-
---     where
-
---   --- Name processing function configuration
---   loadAndEncodeNameList :: String -> IO [NameTokenCount]
---   loadAndEncodeNameList f = map (encodeName retainNumeric namePrepFcn) <$> loadNameList f
-
---   namePrepFcn :: Text -> Text
---   namePrepFcn    = letterLimitFcn . phoneticFcn
-
---   phoneticFcn :: Text -> Text
---   phoneticFcn    = case phoneticAlgorithm of
---     Nothing -> id
---     Just prePhonetic -> case downcaseString prePhonetic of
---       -- "metaphone" -> metaphone
---       "soundex"   -> T.pack . soundex True . T.unpack
---       "phonix"    -> T.pack . phonix . T.unpack
---       _           -> error $ "Phonetic algorithm " ++ prePhonetic ++ " not recognized"
-
---   letterLimitFcn :: Text -> Text
---   letterLimitFcn = maybe id T.take maxTokenLength
-
---   -- Output configuration
---   outputRequested = isJust outputFile
---   fileFormat      = maybe defaultFileFormat getFileFormat outputFile
-
---   --- Matching selection function configuration
---   selectionFcn = selectBest includeTies numberOfResults . filterComparison minimumMatchScore
-
-
---   -- Subgroup selection function
---   subgroupFilterFcn = if subgroupSearch then subgroupFilter
---                       else subgroupPassThru
 
 --   subgroupFilterFcnV = if subgroupSearch then subgroupFilterV
 --                       else subgroupPassThruV

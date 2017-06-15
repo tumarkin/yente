@@ -73,7 +73,7 @@ yenteOptions = YenteOptions
                         &= help "Copy results to an output file. (Default is a tab delimited file. Files with .csv extension will be comma delimited."  &= groupname "Output"
   }
   &= program    "yente"
-  &= summary "Yente - a matchmaker for text files (Version 0.2.1)"
+  &= summary "Yente - a matchmaker for text files (Version 0.3.0.1)"
   &= details ["More details at github.com/tumarkin/yente"]
   &= helpArg    [explicit, name "help", groupname "Information"]
   &= versionArg [explicit, name "version", name "V", groupname "Information"]

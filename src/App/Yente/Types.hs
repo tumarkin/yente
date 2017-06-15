@@ -25,8 +25,9 @@ module App.Yente.Types (
   -- ** Functions
   , emptyName
   , sameGroup
-  , encodeName
+  -- , encodeName
   , encodeNameTokenList  
+  , toNameTokenCount
   , normName
   -- , crossProduct
   , scoreMap
@@ -184,6 +185,12 @@ encodeNameTokenList retainNumeric encode nr
 
     n@Name{..} = unNameRaw nr
 
+toNameTokenCount :: NameTokenList -> NameTokenCount
+toNameTokenCount ntl = 
+    NameTokenCount n{otherData = unCounter . countTokens . tokenList $ ntl}
+  where
+    n = unNameTokenList ntl
+
 
 
 -- | Compute the name norm score given a token weight map
@@ -232,7 +239,7 @@ instance NFData NameComparison where
       } = rnf fn `seq` rnf tn `seq` s `seq` ()
 
 
--- | 
+-- | A map that knows its highest possible value.
 data TokenWeightMap = TokenWeightMap
   { tokenWeights     :: !(Map Text Double)
   , rarestTokenValue :: !Double
