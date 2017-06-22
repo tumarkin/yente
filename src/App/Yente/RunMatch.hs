@@ -50,9 +50,8 @@ yente Levenshtein yo = yenteG id compareNameListToNameLev yo
 
 -- | Generic yente algorithm capable of handling generic name
 -- transformation and comparison functions.
-yenteG :: NameLike a 
-      => (([NameTokenList], [NameTokenList]) -> ([a], [a]))  -- | Transformer of raw names
-      -> ([a] -> a -> [NameComparison])          -- | Comparison function
+yenteG :: (([NameTokenList], [NameTokenList]) -> ([Name a], [Name a]))  -- | Transformer of raw names
+      -> ([Name a] -> Name a -> [NameComparison])          -- | Comparison function
       -> YenteOptions
       -> IO ()
 yenteG transform comp YenteOptions{..} = do
@@ -114,17 +113,18 @@ yenteG transform comp YenteOptions{..} = do
 --   subgroupFilterFcnV = if subgroupSearch then subgroupFilterV
 --                       else subgroupPassThruV
 
-subgroupFilter :: NameLike a => [a] -> a -> [a]
+
+subgroupFilter :: [Name a] -> Name b -> [Name a]
 subgroupFilter ns n = filter (sameGroup n) ns
 
-subgroupPassThru :: NameLike a => [a] -> a -> [a]
+subgroupPassThru :: [Name a] -> Name b -> [Name a]
 subgroupPassThru ns _ = ns
 
 
--- subgroupFilterV :: Vector (NameNormed) -> NameNormed -> Vector (NameNormed)
+-- subgroupFilterV :: Vector (Name a) -> Name b -> Vector (Name a)
 -- subgroupFilterV ns n = V.filter (sameGroup n) ns
 
--- subgroupPassThruV :: Vector (NameNormed) -> NameNormed -> Vector (NameNormed)
+-- subgroupPassThruV :: Vector (Name a) -> Name b -> Vector (Name a)
 -- subgroupPassThruV ns _ = ns
 
 

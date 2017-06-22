@@ -14,7 +14,6 @@ module App.Yente.Types (
   , NameNormed(..)
   , norm
   , countWeights
-  , NameLike
 
   -- , NormWeights(..)
   , CountWeights
@@ -65,39 +64,34 @@ data Name d = Name
   , otherData :: !d
   } deriving (Show, Eq)
 
-class NameLike n where
-  -- | Check if two names have the same group
-  sameGroup :: n -> n -> Bool
+-- class NameLike n where
+--   -- | Check if two names have the same group
+sameGroup :: Name a -> Name b -> Bool
+sameGroup a b = group a == group b
 
-instance NameLike (Name x) where
-  sameGroup a b = group a == group b
+-- | A name type with no extra data
+type NameRaw = Name ()
 
+toNameRaw :: Name a -> NameRaw
+toNameRaw n = n{otherData = ()}
 
-
-
-newtype NameRaw = NameRaw{unNameRaw :: Name ()}
-  deriving (NFData, Eq, Show, NameLike)
-
--- | A wrapped name containing a map of each processed token and the token
+-- | A name containing a map of each processed token and the token
 -- occurance count in otherData.
-newtype NameTokenList = NameTokenList{unNameTokenList :: Name [Text]}
-  deriving (NFData, Eq, NameLike)
+type NameTokenList = Name [Text]
 
 tokenList :: NameTokenList -> [Text]
-tokenList = otherData . unNameTokenList
+tokenList = otherData
 
--- | A wrapped name containing a map of each processed token and the token
+-- | A name containing a map of each processed token and the token
 -- occurance count in otherData.
-newtype NameTokenCount = NameTokenCount{unNameTokenCount :: Name (Map Text Int)}
-  deriving (NFData, Eq, NameLike)
+type NameTokenCount = Name (Map Text Int)
 
 tokens :: NameTokenCount -> Map Text Int
-tokens = otherData . unNameTokenCount
+tokens = otherData
 
--- | A wrapped name containing a norm and a map from each token to a count,
+-- | A name containing a norm and a map from each token to a count,
 -- weight, and weight squared in otherData.
-newtype NameNormed = NameNormed{unNameNormed :: Name NormWeights}
-  deriving (NFData, Eq, Show, NameLike)
+type NameNormed = Name NormWeights
 
 data NormWeights = NormWeights
   { _norm    :: !Double
@@ -109,25 +103,12 @@ data NormWeights = NormWeights
 type CountWeights = (Int, Double, Double)
 
 norm :: NameNormed -> Double
-norm = _norm . otherData . unNameNormed
+norm = _norm . otherData
 
 countWeights :: NameNormed -> Map Text CountWeights
-countWeights = _countWeights . otherData . unNameNormed
+countWeights = _countWeights . otherData
 
 
--- | A class for wrapped names
-class NameRawLike a where
-  toNameRaw :: a -> NameRaw
-
-instance NameRawLike NameTokenCount where
-  toNameRaw n = let n' = unNameTokenCount n 
-                in  NameRaw $ n'{otherData = ()}
-instance NameRawLike NameTokenList where
-  toNameRaw n = let n' = unNameTokenList n 
-                in NameRaw $ n'{otherData = ()}
-instance NameRawLike NameNormed where
-  toNameRaw n = let n' = unNameNormed n 
-                in NameRaw $ n'{otherData = ()}
 
 
 -- | NFData instances for parallelization.
@@ -150,12 +131,12 @@ emptyName :: Text       -- ^ Id
           -> Text       -- ^ Name
           -> Maybe Text -- ^ Group
           -> NameRaw
-emptyName i n g = NameRaw
-  Name{ idx        = i
-      , name      = n
-      , group     = g
-      , otherData = ()
-      }
+emptyName i n g = Name
+    { idx        = i
+    , name      = n
+    , group     = g
+    , otherData = ()
+    }
 
 
 -- | Encode the name tokens
@@ -163,39 +144,33 @@ encodeName  :: Bool           -- ^ Retain numeric characters
             -> (Text -> Text) -- ^ Encoding function
             -> NameRaw       -- ^ Source name
             -> NameTokenCount
-encodeName retainNumeric encode nr = 
-  NameTokenCount n{otherData = unCounter . countTokens . tokenList $ ntl}
+encodeName retainNumeric encode n = 
+    n{otherData = unCounter . countTokens . tokenList $ ntl}
 
-    where
+  where
 
-  ntl = encodeNameTokenList retainNumeric encode nr
-  n   = unNameTokenList ntl
+    ntl = encodeNameTokenList retainNumeric encode n
 
 
 encodeNameTokenList  :: Bool          -- ^ Retain numeric characters
                      -> (Text -> Text) -- ^ Encoding function
                      -> NameRaw       -- ^ Source name
                      -> NameTokenList
-encodeNameTokenList retainNumeric encode nr
-  = NameTokenList $ n{otherData = tokenCounts}
+encodeNameTokenList retainNumeric encode n
+  = n{otherData = tokenCounts}
   where
-    tokenCounts = map (encode . toLower) . T.words . T.map filterLetters $ name
+    tokenCounts = map (encode . toLower) . T.words . T.map filterLetters $ name n
     filterLetters x = if charFilter x then x else ' '
     charFilter      = if retainNumeric then isAlphaNum else isLetter
 
-    n@Name{..} = unNameRaw nr
-
 toNameTokenCount :: NameTokenList -> NameTokenCount
-toNameTokenCount ntl = 
-    NameTokenCount n{otherData = unCounter . countTokens . tokenList $ ntl}
-  where
-    n = unNameTokenList ntl
+toNameTokenCount n = n{otherData = unCounter . countTokens . tokenList $ n}
 
 
 
 -- | Compute the name norm score given a token weight map
 normName :: TokenWeightMap -> NameTokenCount -> NameNormed
-normName twm nt = NameNormed $
+normName twm n = 
   n{ otherData =
     NormWeights{ _norm = sqrt $ scoreMap tw
                , _countWeights = tw
@@ -207,17 +182,13 @@ normName twm nt = NameNormed $
       where w = twm `findWeight` k
 
     tw :: Map Text CountWeights -- (Int, Double, Double)
-    tw = mapWithKey transformValues (tokens nt)
-
-    n@Name{..} = unNameTokenCount nt
+    tw = mapWithKey transformValues (tokens n)
 
 -- | Remove a single token occurance. This would be nicer with lenses.
 remove1TokenCount :: Text -> NameNormed -> NameNormed
-remove1TokenCount t n = NameNormed $ nr{otherData = NormWeights _norm cw'}
+remove1TokenCount t n = n{otherData = NormWeights _norm cw'}
   where
-    nr  = unNameNormed n
-    NormWeights{..} = otherData nr
-
+    NormWeights{..} = otherData n
     cw' = update (\(c, w, w2) -> if c > 1 then Just (c-1, w, w2) else Nothing) t _countWeights
 
 

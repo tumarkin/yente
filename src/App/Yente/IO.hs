@@ -55,14 +55,11 @@ instance CSV.FromNamedRecord NameRaw where
 instance CSV.ToNamedRecord NameComparison where
     toNamedRecord NameComparison{..}
         = CSV.namedRecord [ "score"     .= score
-                          , "name_from" .= name fn
-                          , "name_to"   .= name tn
-                          , "id_from"   .= idx fn
-                          , "id_to"     .= idx tn
+                          , "name_from" .= name fromName
+                          , "name_to"   .= name toName
+                          , "id_from"   .= idx fromName
+                          , "id_to"     .= idx toName
                           ]
-      where
-        fn = unNameRaw fromName
-        tn = unNameRaw toName
 
 
 lookupOptionalCol :: NamedRecord -> B.ByteString -> Parser (Maybe Text)
