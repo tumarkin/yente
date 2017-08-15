@@ -13,7 +13,6 @@ import qualified System.IO.Streams         as Streams
 import           Text.PhoneticCode.Phonix
 import           Text.PhoneticCode.Soundex
 
-import           App.Yente.CLICmdArgs
 import           App.Yente.Cosine
 import           App.Yente.IO
 import           App.Yente.Levenshtein
@@ -24,8 +23,6 @@ import           App.Yente.Types
 preProcessingChunkSize = 50
 comparisonChunkSize    = 20
 comparisonWithMisspellingChunkSize = 1
-
-
 
 
 -- Entry into yente algorithm
@@ -55,8 +52,8 @@ yenteG :: (([NameTokenList], [NameTokenList]) -> ([Name a], [Name a]))  -- | Tra
       -> YenteOptions
       -> IO ()
 yenteG transform comp YenteOptions{..} = do
-    putStrLn $ unwords ["Number of cores:", show numCapabilities]
-    putStrLn $ unwords ["Matching from", show fromFile , "to", show toFile ]
+    hPutStrLn stderr $ 
+            unwords ["Matching from", show fromFile , "to", show toFile, "with", show numCapabilities, "cores"]
 
     matchWriter <- case outputFile of
                     Nothing       -> handleToNameWriter fileFormat stdout
@@ -81,17 +78,15 @@ yenteG transform comp YenteOptions{..} = do
 
   where
 
+    -- Preprocessing setup
     namePrepFcn :: Text -> Text
     namePrepFcn = letterLimitFcn . phoneticFcn . unicodeFcn
 
     phoneticFcn :: Text -> Text
     phoneticFcn = case phoneticAlgorithm of
-      Nothing -> id
-      Just prePhonetic -> case downcaseString prePhonetic of
-        -- "metaphone" -> metaphone
-        "soundex"   -> T.pack . soundex True . T.unpack
-        "phonix"    -> T.pack . phonix . T.unpack
-        _           -> error $ "Phonetic algorithm " ++ prePhonetic ++ " not recognized"
+      Just Soundex -> T.pack . soundex True . T.unpack
+      Just Phonix  -> T.pack . phonix . T.unpack
+      _            -> id
 
     unicodeFcn :: Text -> Text
     unicodeFcn = if retainUnicode then id else unidecode

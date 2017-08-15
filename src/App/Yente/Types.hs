@@ -15,7 +15,7 @@ module App.Yente.Types (
   , norm
   , countWeights
 
-  -- , NormWeights(..)
+  , NormWeights(..)
   , CountWeights
 
   -- ** Conversion
@@ -25,11 +25,11 @@ module App.Yente.Types (
   , emptyName
   , sameGroup
   -- , encodeName
-  , encodeNameTokenList  
+  , encodeNameTokenList
   , toNameTokenCount
   , normName
   -- , crossProduct
-  , scoreMap
+  , sumSquareWeightMap
   , remove1TokenCount
 
 
@@ -43,6 +43,8 @@ module App.Yente.Types (
 
   -- * Application modes
   , YenteMode(..)
+  , YenteOptions(..)
+  , PhoneticAlgorithm(..)
 
   ) where
 
@@ -144,7 +146,7 @@ encodeName  :: Bool           -- ^ Retain numeric characters
             -> (Text -> Text) -- ^ Encoding function
             -> NameRaw       -- ^ Source name
             -> NameTokenCount
-encodeName retainNumeric encode n = 
+encodeName retainNumeric encode n =
     n{otherData = unCounter . countTokens . tokenList $ ntl}
 
   where
@@ -170,9 +172,9 @@ toNameTokenCount n = n{otherData = unCounter . countTokens . tokenList $ n}
 
 -- | Compute the name norm score given a token weight map
 normName :: TokenWeightMap -> NameTokenCount -> NameNormed
-normName twm n = 
+normName twm n =
   n{ otherData =
-    NormWeights{ _norm = sqrt $ scoreMap tw
+    NormWeights{ _norm = sqrt $ sumSquareWeightMap tw
                , _countWeights = tw
                }
   }
@@ -238,8 +240,8 @@ computeIDF ns =
 -- crossProduct a b =
 
 -- | Score a list of words with tf
-scoreMap :: Map Text CountWeights -> Double -- (Int, Double) -> Double
-scoreMap = sqrt . foldrWithKey squareWeights 0
+sumSquareWeightMap :: Map Text CountWeights -> Double -- (Int, Double) -> Double
+sumSquareWeightMap = foldrWithKey squareWeights 0
   where
     squareWeights :: Text -> CountWeights -> Double -> Double
     squareWeights _ (i, _, wsq) cum = cum + fromIntegral i * wsq
@@ -253,10 +255,32 @@ findWeight TokenWeightMap{..} t =  findWithDefault rarestTokenValue t tokenWeigh
 
 
 
-
 -- | Application modes
 data YenteMode = Cosine | Levenshtein
 
+-- | Run-time options
+data YenteOptions = YenteOptions
+  { fromFile           :: String
+  , toFile             :: String
+  , phoneticAlgorithm  :: Maybe PhoneticAlgorithm
+  , retainNumeric      :: Bool
+  , retainUnicode      :: Bool
+  , maxTokenLength     :: Maybe Int
+
+  , misspellingPenalty :: Maybe Double
+  , subgroupSearch     :: Bool
+
+  , numberOfResults    :: Int
+  , includeTies        :: Bool
+  , minimumMatchScore  :: Double
+
+  , outputFile         :: Maybe String
+  } deriving (Show) --  Data) , Typeable)
+
+data PhoneticAlgorithm 
+  = Phonix
+  | Soundex
+  deriving (Eq, Show)
 
 
 -- | A counter
@@ -271,4 +295,6 @@ addText c t = Counter . insertWith (+) t 1 $ unCounter c
 
 countTokens :: [Text] -> Counter Int
 countTokens = foldl' addText emptyCounter
+
+
 

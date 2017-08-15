@@ -2,7 +2,7 @@
 --  see http://haskell.org/cabal/users-guide/
 
 name:                yente
-version:             0.3.0.2
+version:             0.3.0.3
 synopsis:            A matchmaker for textual data.
 description:         See README.md
 homepage:            https://github.com/tumarkin/yente
@@ -20,6 +20,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     App.Yente.CLICmdArgs
+                     , App.Yente.CLIOptparseApplicative
                      , App.Yente.Cosine
                      , App.Yente.IO
                      , App.Yente.Levenshtein
@@ -37,9 +38,11 @@ library
                        deepseq,
                        edit-distance,
                        io-streams,
+                       optparse-applicative,
                        parallel,
                        phonetic-code,
                        text,
+                       terminal-size,
                        unordered-containers,
                        vector,
                        unidecode
