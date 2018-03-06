@@ -19,3 +19,4 @@ dist/
 TODO.md
 .stack-work/
 dist/*
+test_data/

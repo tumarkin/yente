@@ -1,77 +1,53 @@
 module App.Yente.Prelude
   ( module X
-  , downcaseString
-
-   -- * Data.Text
-  , Text
-  , toLower
-  , tlength
-  , tunwords
 
   -- * Data.Map.Strict
-  , Map
-  , elems
+  , module DMS
+  -- , Map
+  -- , elems
   , emptyMap
-  , findWithDefault
-  , foldrWithKey
-  , fromList
-  , insertWith
-  , intersectionWith
-  , keys
-  , mapWithKey
-  , toList
-  , update
-
-  -- * Data.Funcvtion
-  , on
-
-  -- * Data.Maybe
-  , isJust
-
-  -- * Data.Vector
-  , Vector
+  -- , findWithDefault
+  -- , foldrWithKey
+  -- , fromList
+  -- , insertWith
+  -- , intersectionWith
+  -- , keys
+  -- , mapWithKey
+  -- , toList
+  -- , update
 
   -- * EditCosts
   , restrictedDamerauLevenshteinDistanceText
 
-  -- * Unicode
+  -- * String conversion
   , unidecode
+  , cs
   ) where
 
-import           Prelude             as X
--- import           ClassyPrelude       as X
+-- Replaces ClassyPrelude lazy map with strict
 
-import           Control.Applicative as X
-import           Control.Arrow       as X
-import           Control.Monad       as X
-import           Data.Function       (on)
-import           Data.List           as X
-import           Data.Map.Strict     (Map, elems, empty, findWithDefault,
-                                      foldrWithKey, fromList, insertWith,
-                                      intersectionWith, keys, mapWithKey, update, toList)
-import           Data.Maybe          (isJust)
-import           Data.Text           (Text, pack, toLower, unpack)
-import           Data.Vector         (Vector)
-import           Text.EditDistance   as X
+import           ClassyPrelude           as X hiding (Map, elems,
+                                               findWithDefault, foldrWithKey,
+                                               fromList, insertWith,
+                                               intersectionWith, keys,
+                                               mapWithKey, toList, update)
+import           Data.Map.Strict         as DMS (Map, elems,
+                                                 findWithDefault, foldrWithKey,
+                                                 fromList, insertWith,
+                                                 intersectionWith, keys,
+                                                 mapWithKey, toList, update)
+import qualified Data.Map.Strict
+import           Data.String.Conversions (cs)
+import           Text.EditDistance       as X
+import qualified Text.Unidecode          as U
 
-import qualified Data.Text           as T
-import qualified Text.Unidecode      as U
-
-downcaseString :: String -> String
-downcaseString = unpack . toLower . pack
-
-restrictedDamerauLevenshteinDistanceText :: EditCosts -> Text -> Text -> Int
+restrictedDamerauLevenshteinDistanceText ∷ EditCosts → Text → Text → Int
 restrictedDamerauLevenshteinDistanceText ec t1 t2 =
   restrictedDamerauLevenshteinDistance ec (unpack t1) (unpack t2)
-
-tlength :: Text -> Int
-tlength = T.length
-
-tunwords :: [Text] -> Text
-tunwords = T.unwords
 
 emptyMap = Data.Map.Strict.empty
 
 
-unidecode :: Text -> Text
+unidecode ∷ Text → Text
 unidecode = pack . foldMap U.unidecode . unpack
+

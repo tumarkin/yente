@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module App.Yente.Cosine
     ( cosine
     , cosineWithMispellings
@@ -55,11 +53,14 @@ sequentialNumerator nameA nameB scores
 
     -- Find the best option
     -- de@((tokenA, tokenB), maxScore) = minimumBy (compare `on` (Down . snd)) scores
-    de@((tokenA, tokenB), maxScore) = maximumBy (compare `on` snd) scores
+    ((tokenA, tokenB), maxScore) = maximumBy (compare `on` snd) nnScores
 
     -- Update the names
     nameA'   = remove1TokenCount tokenA nameA
     nameB'   = remove1TokenCount tokenB nameB
+
+    nnScores ∷ NonNull [((Text,Text), Double)]
+    nnScores = fromMaybe (error "No scores found") $ fromNullable scores
 
     -- Filter out the scores that are no longer valid
     scores'  = filter (\(k,_) -> k `elem` remainingTokens) scores
@@ -77,7 +78,7 @@ scoreTokensWithMispellings
 scoreTokensWithMispellings pf ((tokenA,wtA),(tokenB, wtB))
     = ((tokenA, tokenB), (matchFraction ** pf) * (wtA * wtB))
   where
-    matchFraction = 1- fromIntegral (restrictedDamerauLevenshteinDistanceText defaultEditCosts tokenA tokenB) / fromIntegral ( max (tlength tokenA) (tlength tokenB))
+    matchFraction = 1- fromIntegral (restrictedDamerauLevenshteinDistanceText defaultEditCosts tokenA tokenB) / fromIntegral ( max (length tokenA) (length tokenB))
 
 
 -- Utility functions

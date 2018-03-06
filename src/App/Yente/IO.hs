@@ -1,148 +1,83 @@
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module App.Yente.IO
-    ( NameComparison(..)
-    , handleToNameWriter
-    , filepathToNameWriter
-    {-, handleToNameReader-}
-    , loadNameList
-    , loadNameVector
-    , getFileFormat
-    , SupportedFileFormat(..)
-    , defaultFileFormat
+    ( -- NameComparison(..)
+      readNamesFile
+    -- , getFileFormat
+    , getEncodeOptions
+    -- , SupportedFileFormat(..)
     ) where
 
 
-import           Control.Applicative
-import qualified Data.ByteString       as B
-import qualified Data.ByteString.Char8 as BSC
-import qualified Data.ByteString.Lazy  as BS
-import           Data.Char             (ord)
-import           Data.Csv              (FromField, NamedRecord, Parser, (.:), (.=))
-import qualified Data.Csv              as CSV
-import qualified Data.HashMap.Strict   as HM
-import qualified Data.Text             as T
-import qualified Data.Vector           as V
-import           System.IO
-import qualified System.IO.Streams     as Streams
-import           System.IO.Streams.Csv
+import qualified Data.ByteString.Lazy as BS
+import           Data.Char            (ord)
+import           Data.Csv             hiding (lookup)
+import           System.FilePath
 
 import           App.Yente.Prelude
 import           App.Yente.Types
 
 
+-- | Get the encoding options for a given filetype
+getEncodeOptions ∷ FilePath → EncodeOptions
+getEncodeOptions fp = 
+  case getFileFormat fp of
+    CommaDelimited → csvEncoding
+    TabDelimited   → tabEncoding
 
-
-
-
-
+-- | Get file format from file name
+getFileFormat ∷ FilePath → SupportedFileFormat
+getFileFormat fn = case takeExtension fn of
+                    ".csv" -> CommaDelimited
+                    _     -> TabDelimited
 
 data SupportedFileFormat
     = CommaDelimited
     | TabDelimited
     deriving (Show, Eq)
 
-instance CSV.FromNamedRecord NameRaw where
+
+
+-- Encoding and decoding formats
+csvEncoding = defaultEncodeOptions
+tabEncoding = defaultEncodeOptions { encDelimiter = fromIntegral (ord '\t') }
+
+csvDecoding = defaultDecodeOptions
+tabDecoding = defaultDecodeOptions { decDelimiter = fromIntegral (ord '\t') }
+
+
+-- File reading functions
+readNamesFile ∷ MonadIO m ⇒ FilePath
+              → m (Vector NameRaw)
+readNamesFile fp = do
+    bstring         <- liftIO $ BS.readFile fp
+    let decodedFile = decodeByNameWith decOpts bstring
+    return (snd . fromEither $ decodedFile)
+  where
+    fromEither a = case a of
+        Left e  -> error e
+        Right x -> x
+    decOpts = getDecodeOptions fp
+
+
+getDecodeOptions ∷ FilePath → DecodeOptions
+getDecodeOptions fp =
+  case getFileFormat fp of
+    CommaDelimited → csvDecoding
+    TabDelimited   → tabDecoding
+
+
+instance FromNamedRecord NameRaw where
     parseNamedRecord m = emptyName
                       <$> m .:   "id"
                       <*> m .:   "name"
                       <*> m `lookupOptionalCol`  "group"
 
-
-
-instance CSV.ToNamedRecord NameComparison where
-    toNamedRecord NameComparison{..}
-        = CSV.namedRecord [ "score"     .= score
-                          , "name_from" .= name fromName
-                          , "name_to"   .= name toName
-                          , "id_from"   .= idx fromName
-                          , "id_to"     .= idx toName
-                          ]
-
-
-lookupOptionalCol :: NamedRecord -> B.ByteString -> Parser (Maybe Text)
+lookupOptionalCol ∷ NamedRecord → ByteString → Parser Text
 lookupOptionalCol n bs =
-  case HM.lookup bs n of
-    Nothing -> pure Nothing
-    Just s  -> pure . Just . T.pack . BSC.unpack $ s
-
-
--- Default file format
-defaultFileFormat = TabDelimited
-
--- Get file format from file name
-getFileFormat :: String -> SupportedFileFormat
-getFileFormat fn = case extension of
-                    "csv" -> CommaDelimited
-                    "txt" -> TabDelimited
-                    "tsv" -> TabDelimited
-                    _     -> TabDelimited
-  where
-    extension = T.unpack . T.toLower . snd $ T.breakOnEnd (T.pack ".") (T.pack fn)
-
-
--- Writing functions
-handleToNameWriter :: SupportedFileFormat
-                   -> Handle
-                   -> IO (Streams.OutputStream NameComparison)
-handleToNameWriter ff h
-    =   Streams.handleToOutputStream h
-    >>= encodeStreamByNameWith (encoding ff) (V.fromList [ "score", "name_from", "name_to", "id_from", "id_to" ])
-
-  where
-    encoding TabDelimited   = tabEncoding
-    encoding CommaDelimited = csvEncoding
-
-filepathToNameWriter :: SupportedFileFormat
-                   -> String
-                   -> IO (Streams.OutputStream NameComparison)
-filepathToNameWriter ff outFileName
-    = openFile outFileName WriteMode >>= handleToNameWriter ff
-
-
--- Reading functions
-loadNameVector :: String
-                 -> IO (Vector NameRaw)
-loadNameVector inFileName = do
-    bstring         <- BS.readFile inFileName
-    let decodedFile  = CSV.decodeByNameWith (decoding fileformat) bstring
-    return (snd . fromEither $ decodedFile)
-  where
-    decoding TabDelimited   = tabDecoding
-    decoding CommaDelimited = csvDecoding
-    fromEither a = case a of
-        Left e  -> error e
-        Right x -> x
-    fileformat = getFileFormat inFileName
-
-
-loadNameList :: String
-                 -> IO [NameRaw]
-loadNameList inFileName =
-    V.toList <$> loadNameVector inFileName
-
-
-
-
--- Encoding and decoding formats
-csvEncoding = CSV.defaultEncodeOptions
-tabEncoding = CSV.defaultEncodeOptions { CSV.encDelimiter = fromIntegral (ord '\t') }
-
-csvDecoding = CSV.defaultDecodeOptions
-tabDecoding = CSV.defaultDecodeOptions { CSV.decDelimiter = fromIntegral (ord '\t') }
-
-
-{-handleToNameReader :: SupportedFileFormat -}
-{-                      -> Handle -}
-{-                      -> IO (Streams.InputStream (Either  String Name))-}
-{-handleToNameReader ff h -}
-{-    = Streams.handleToInputStream h >>= decodeStreamByNameWith -}
-{-                                        (decoding ff) -}
-{-  where-}
-{-    decoding TabDelimited   = tabDecoding-}
-{-    decoding CommaDelimited = csvDecoding-}
+  case lookup bs n of
+    Nothing -> pure ""
+    Just s  -> pure . cs $ s
 
 
 
