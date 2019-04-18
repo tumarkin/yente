@@ -3,18 +3,7 @@ module App.Yente.Prelude
 
   -- * Data.Map.Strict
   , module DMS
-  -- , Map
-  -- , elems
   , emptyMap
-  -- , findWithDefault
-  -- , foldrWithKey
-  -- , fromList
-  -- , insertWith
-  -- , intersectionWith
-  -- , keys
-  -- , mapWithKey
-  -- , toList
-  -- , update
 
   -- * EditCosts
   , restrictedDamerauLevenshteinDistanceText
@@ -31,11 +20,11 @@ import           ClassyPrelude           as X hiding (Map, elems,
                                                fromList, insertWith,
                                                intersectionWith, keys,
                                                mapWithKey, toList, update)
-import           Data.Map.Strict         as DMS (Map, elems,
-                                                 findWithDefault, foldrWithKey,
-                                                 fromList, insertWith,
-                                                 intersectionWith, keys,
-                                                 mapWithKey, toList, update)
+import           Data.Map.Strict         as DMS (Map, elems, findWithDefault,
+                                                 foldrWithKey, fromList,
+                                                 insertWith, intersectionWith,
+                                                 keys, mapWithKey, toList,
+                                                 update)
 import qualified Data.Map.Strict
 import           Data.String.Conversions (cs)
 import           Text.EditDistance       as X

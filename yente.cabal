@@ -24,6 +24,7 @@ library
                      , App.Yente.Cosine
                      , App.Yente.IO
                      , App.Yente.Levenshtein
+                     , App.Yente.Ngram
                      , App.Yente.Prelude
                      , App.Yente.RunMatch
                      , App.Yente.Types

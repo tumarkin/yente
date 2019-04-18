@@ -44,9 +44,10 @@ module App.Yente.Types (
   , YenteOptions(..)
   , PreprocessingOptions(..)
   , MatchingOptions(..)
+  , MisspellingMethod(..)
   , OutputOptions(..)
   , PhoneticAlgorithm(..)
-  , PenaltyFunctionCoefficient
+  -- , PenaltyFunctionCoefficient
 
   ) where
 
@@ -237,7 +238,7 @@ findWeight TokenWeightMap{..} t =  findWithDefault rarestTokenValue t tokenWeigh
 
 
 -- | Application modes
-type PenaltyFunctionCoefficient = Maybe Double
+-- type PenaltyFunctionCoefficient = Maybe Double
 
 -- | Run-time options
 data YenteOptions = YenteOptions
@@ -261,10 +262,14 @@ data PreprocessingOptions = PreprocessingOptions
   } deriving (Show)
 
 data MatchingOptions = MatchingOptions
-  { misspellingPenalty ∷ Maybe Double
+  { misspellingMethod  ∷ Maybe MisspellingMethod
   , subgroupSearch     ∷ Bool
   } deriving (Show)
 
+data MisspellingMethod 
+  = Levenshtein Double
+  | Ngram       Int
+  deriving (Show)
 
 data OutputOptions = OutputOptions
   { numberOfResults   ∷ Int

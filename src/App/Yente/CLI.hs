@@ -60,11 +60,26 @@ preprocessing = PreprocessingOptions
 -- | Match configuration
 matching ∷ Parser MatchingOptions
 matching = MatchingOptions
-  <$> optional (option auto ( long "misspelling-penalty"
-                  <> short 'p'
-                  <> metavar "INT"
-                  <> help "The misspelling penalty factor (percent correct letters raised to factor is multiplied by token score)"))
+  <$> misspellingMethodP
   <*> switch (long "subgroup-search" <> short 'g' <> help "Search for matches in groups (requires 'group' column in data files)")
+
+
+misspellingMethodP ∷ Parser (Maybe MisspellingMethod)
+misspellingMethodP = optional (levenshtein <|> ngram)
+
+
+levenshtein ∷ Parser MisspellingMethod
+levenshtein = Levenshtein <$> option auto( long "levenshtein-penalty"
+    <> metavar "DOUBLE"
+    <> help "The Levenshtein edit distance penalty factor (percent correct letters raised to factor is multiplied by token score)")
+
+ngram ∷ Parser MisspellingMethod 
+ngram = Ngram <$> option auto (long "ngram-size"
+    <> metavar "INT"
+    <> help "The size of ngrams to use (2 is recommended to start)")
+    
+
+
 
 -- | Output configuration
 output ∷ Parser OutputOptions

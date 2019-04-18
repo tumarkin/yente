@@ -1,11 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 module App.Yente.IO
-    ( -- NameComparison(..)
-      readNamesFile
-    -- , getFileFormat
+    ( readNamesFile
     , getEncodeOptions
-    -- , SupportedFileFormat(..)
     ) where
 
 

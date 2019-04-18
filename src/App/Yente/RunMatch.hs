@@ -28,13 +28,14 @@ import           App.Yente.Types
 yente ∷ YenteOptions → IO ()
 yente yo@YenteOptions{..} = do
     (fromNameTL, toNameTL) <- readAndPreprocessNames yo
+    let MatchingOptions{..} = matchingOptions
 
     let wts                = computeIDF toNamesTokenized
         fromNamesTokenized = toNameTokenCount <$> fromNameTL
         toNamesTokenized   = toNameTokenCount <$> toNameTL
         fromNamesWts       = map (normName wts) fromNamesTokenized
         toNamesWts         = map (normName wts) toNamesTokenized
-        comparer           = compareNameListToNameCosine (misspellingPenalty matchingOptions)
+        comparer           = compareNameListToNameCosine misspellingMethod
 
     yenteG yo comparer fromNamesWts toNamesWts
 
@@ -74,7 +75,7 @@ yenteG YenteOptions{..} compare fromNames toNames = do
                                           ,name toName, group fromName, score)]
 
         writeName False nc@NameComparison{..} = BSL.hPut outHandle commaData
-            where 
+            where
               commaData = encodeWith eo [(idx fromName, name fromName, idx toName, name toName, score)]
 
     runConcurrent numCapabilities threadConfig processName writeNames fromNames
@@ -127,11 +128,15 @@ subgroupFilter True  ns n = filter (sameGroup n) ns
 subgroupFilter False ns _ = ns
 
 compareNameListToNameCosine ∷ Traversable t
-                            ⇒ PenaltyFunctionCoefficient
+                            ⇒ Maybe MisspellingMethod
                             → (t NameNormed, NameNormed)
                             → t NameComparison
-compareNameListToNameCosine Nothing   (ns, n) = map (cosine n) ns                    -- No misspelling
-compareNameListToNameCosine (Just pf) (ns, n) = map (cosineWithMispellings pf n) ns  -- Allow misspellings
+-- Misspellings not allowed
+compareNameListToNameCosine Nothing   (ns, n)
+    = map (cosine n) ns
+-- Misspellings allowed
+compareNameListToNameCosine (Just mm) (ns, n)
+    = map (cosineWithMispellings mm n) ns
 
 
 compareNameListToNameLev ∷ Traversable t
