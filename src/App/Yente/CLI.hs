@@ -73,11 +73,11 @@ levenshtein = Levenshtein <$> option auto( long "levenshtein-penalty"
     <> metavar "DOUBLE"
     <> help "The Levenshtein edit distance penalty factor (percent correct letters raised to factor is multiplied by token score)")
 
-ngram ∷ Parser MisspellingMethod 
+ngram ∷ Parser MisspellingMethod
 ngram = Ngram <$> option auto (long "ngram-size"
     <> metavar "INT"
     <> help "The size of ngrams to use (2 is recommended to start)")
-    
+
 
 
 
@@ -101,7 +101,7 @@ output = OutputOptions
                   )
 
 
--- Utility parsers and functions 
+-- Utility parsers and functions
 phoneticAlgorithmP ∷ Parser PhoneticAlgorithm
 phoneticAlgorithmP
    =  flag' Phonix (long "phonix"

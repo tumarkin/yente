@@ -1,13 +1,13 @@
-module App.Yente.Levenshtein 
+module App.Yente.Levenshtein
     ( levenshtein
-    ) where 
+    ) where
 
-import App.Yente.Types
-import App.Yente.Prelude
+import           App.Yente.Prelude
+import           App.Yente.Types
 
 
-levenshtein :: NameTokenList -> NameTokenList -> NameComparison 
-levenshtein nameA nameB = NameComparison 
+levenshtein ∷ NameTokenList → NameTokenList → NameComparison
+levenshtein nameA nameB = NameComparison
   { fromName = toNameRaw nameA
   , toName   = toNameRaw nameB
   , score    = 1 - fromIntegral (restrictedDamerauLevenshteinDistanceText defaultEditCosts joinedTokensA joinedTokensB) / fromIntegral (length joinedTokensA)

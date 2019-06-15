@@ -2,8 +2,8 @@ module App.Yente.Ngram
   ( nGramDistance
   ) where
 
+import qualified Data.Map          as M
 import           Data.Text         (tails)
-import qualified Data.Map as M
 
 import           App.Yente.Prelude
 
@@ -11,7 +11,7 @@ nGramDistance ∷ Int
               → Text
               → Text
               → Double
-nGramDistance n textA textB = 
+nGramDistance n textA textB =
     if   null agrams || null bgrams then 0
     else count common/sqrt(count agrams * count bgrams)
   where
@@ -21,7 +21,6 @@ nGramDistance n textA textB =
 
     count ∷ Map Text Int → Double
     count = fromIntegral . M.foldr' (+) 0
-
 
 
 formNgrams ∷ Int → Text → Map Text Int

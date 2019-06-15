@@ -23,7 +23,6 @@ module App.Yente.Types (
   -- ** Functions
   , emptyName
   , sameGroup
-  -- , encodeName
   , encodeNameTokenList
   , toNameTokenCount
   , normName
@@ -52,7 +51,6 @@ module App.Yente.Types (
   ) where
 
 
--- import           Control.DeepSeq
 import           Data.Char         (isAlphaNum, isLetter)
 import           Data.Csv          hiding (Name)
 
@@ -125,16 +123,6 @@ emptyName i n g = Name
     , otherData = ()
     }
 
-
--- | Encode the name tokens
-encodeName  ∷ Bool          -- ^ Retain numeric characters
-            → (Text → Text) -- ^ Encoding function
-            → NameRaw       -- ^ Source name
-            → NameTokenCount
-encodeName retainNumeric encode n =
-    n{otherData = unCounter . countTokens . tokenList $ ntl}
-  where
-    ntl = encodeNameTokenList retainNumeric encode n
 
 
 encodeNameTokenList  ∷ Bool          -- ^ Retain numeric characters
