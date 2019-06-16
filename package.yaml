@@ -1,0 +1,62 @@
+name:                yente
+version:             0.4.1.0
+github:              https://github.com/tumarkin/yente
+license:             BSD3
+# license-file:        LICENSE
+author:              Robert Tumarkin
+maintainer:          r.tumarkin@unsw.edu.au
+copyright:           "2019 Robert Tumarkin"
+
+extra-source-files:
+- README.md
+# - ChangeLog.md
+
+# Metadata used when publishing your package
+synopsis:            A matchmaker for textual data.
+category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/tumarkin/yente#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- ascii-progress
+- bytestring
+- cassava
+- classy-prelude
+- containers
+- edit-distance
+- filepath
+- ghc-prim
+- optparse-applicative
+- phonetic-code
+- string-conversions
+- terminal-size
+- text
+- unidecode
+
+default-extensions:  
+- NoImplicitPrelude
+- RecordWildCards
+- UnicodeSyntax
+- OverloadedStrings
+- LambdaCase
+
+
+library:
+  source-dirs: src
+
+executables:
+  yente:
+    main:                yente.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    dependencies:
+    - yente
+
