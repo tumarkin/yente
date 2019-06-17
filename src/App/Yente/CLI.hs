@@ -1,13 +1,19 @@
 module App.Yente.CLI
-  ( parseCLI
+  ( YenteOptions(..)
+  , parseCLI
   ) where
 
 import           Options.Applicative
 import           System.Console.Terminal.Size
 
-import           App.Yente.Prelude
-import           App.Yente.Types              hiding (group)
+import           App.Yente.Core
+import           App.Yente.Match
 
+
+
+--------------------------------------------------------------------------------
+-- Yente run-time configuration                                                --
+--------------------------------------------------------------------------------
 
 parseCLI ∷ IO YenteOptions
 parseCLI = do
@@ -15,11 +21,8 @@ parseCLI = do
 
   validateOptions =<< customExecParser ypp yenteInfo
 
-
-
 yParserPrefs ∷ Int → ParserPrefs
 yParserPrefs cols = prefs (showHelpOnError <> columns cols)
-
 
 
 yenteInfo ∷ ParserInfo YenteOptions
@@ -30,6 +33,9 @@ yenteInfo = info (yenteOptions <**> helper)
   )
 
 
+--------------------------------------------------------------------------------
+-- Parser components                                                          --
+--------------------------------------------------------------------------------
 yenteOptions ∷ Parser YenteOptions
 yenteOptions = YenteOptions
   <$> strArgument (metavar "FROM-FILE")
@@ -46,8 +52,8 @@ yenteOptions = YenteOptions
       )
 
 -- | Preprocessing configuration
-preprocessing ∷ Parser PreprocessingOptions
-preprocessing = PreprocessingOptions
+preprocessing ∷ Parser PreprocessingConfig
+preprocessing = PreprocessingConfig
   <$> optional phoneticAlgorithmP
   <*> switch (long "retain-numerical" <> help "Retain numerical characters (does not work with phonetic algorithms)")
   <*> switch (long "retain-unicode"   <> help "Retain unicode characters (does not work with phonetic algorithms)")
@@ -58,8 +64,8 @@ preprocessing = PreprocessingOptions
                   )
 
 -- | Match configuration
-matching ∷ Parser MatchingOptions
-matching = MatchingOptions
+matching ∷ Parser MatchConfig
+matching = MatchConfig
   <$> misspellingMethodP
   <*> switch (long "subgroup-search" <> short 'g' <> help "Search for matches in groups (requires 'group' column in data files)")
 
@@ -78,12 +84,9 @@ ngram = Ngram <$> option auto (long "ngram-size"
     <> metavar "INT"
     <> help "The size of ngrams to use (2 is recommended to start)")
 
-
-
-
 -- | Output configuration
-output ∷ Parser OutputOptions
-output = OutputOptions
+output ∷ Parser OutputConfig
+output = OutputConfig
   <$> option auto ( long "number-of-results"
                   <> short 'n'
                   <> help "The number of results to output"
@@ -111,7 +114,7 @@ phoneticAlgorithmP
 
 validateOptions ∷ YenteOptions → IO YenteOptions
 validateOptions yo = do
-  let PreprocessingOptions{..} = preprocessingOptions yo
+  let PreprocessingConfig{..} = preprocessingConfig yo
   when (isJust phoneticAlgorithm && retainNumeric)
          (error "Phonetic algorithms are not compatible with retaining numeric characters.")
   return yo
