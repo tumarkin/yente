@@ -1,6 +1,4 @@
 {-# LANGUAGE TypeFamilies  #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE ViewPatterns  #-}
 
 module App.Yente.Match
   ( module X
@@ -26,7 +24,7 @@ data YenteOptions = YenteOptions
   , matchConfig         ∷ MatchConfig
   , outputConfig        ∷ OutputConfig
   , outputFile          ∷ FilePath
-  } deriving (Show) --  Data) , Typeable)
+  } deriving (Show)
 
 
 -- | Generic yente algorithm capable of handling generic name

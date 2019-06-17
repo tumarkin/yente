@@ -15,7 +15,6 @@ import           App.Yente.Match
 -- Yente run-time configuration                                                --
 --------------------------------------------------------------------------------
 
-
 parseCLI ∷ IO YenteOptions
 parseCLI = do
   ypp <- yParserPrefs . maybe 80 width <$> size

@@ -14,7 +14,6 @@ import           App.Yente.Core
 --------------------------------------------------------------------------------
 -- Configuration                                                              --
 --------------------------------------------------------------------------------
-
 data PreprocessingConfig = PreprocessingConfig
   { phoneticAlgorithm ∷ !(Maybe PhoneticAlgorithm)
   , retainNumeric     ∷ !Bool
@@ -38,8 +37,8 @@ tokenizeNames preCfg fromNamesRaw toNamesRaw =
     (fromNamesWts, toNamesWts)
   where
     wts                = computeIdf toNamesTokenized
-    fromNameTL        = map (nameEncoder preCfg) fromNamesRaw
-    toNameTL          = map (nameEncoder preCfg) toNamesRaw
+    fromNameTL         = map (nameEncoder preCfg) fromNamesRaw
+    toNameTL           = map (nameEncoder preCfg) toNamesRaw
     fromNamesTokenized = toNameTokenCounter <$> fromNameTL
     toNamesTokenized   = toNameTokenCounter <$> toNameTL
     fromNamesWts       = map (normName wts) fromNamesTokenized
@@ -82,8 +81,11 @@ encodeNameTokenList retainNumeric encode n
     desiredChar ∷ Char → Bool
     desiredChar = if retainNumeric then isAlphaNum else isLetter
 
+
 toNameTokenCounter ∷ Name TokenList → Name TokenCounter
 toNameTokenCounter = fmap countTokens
+
+
 -- | Compute the name norm score given a token weight map
 normName ∷ TokenWeightMap → Name TokenCounter → Name NormWeights
 normName twm = fmap normWeights
