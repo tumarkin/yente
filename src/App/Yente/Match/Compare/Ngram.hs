@@ -23,6 +23,9 @@ nGramDistance n textA textB =
     count = fromIntegral . M.foldr' (+) 0
 
 formNgrams ∷ Int → Text → Map Text Int
-formNgrams n t = unionsWith (+) . map (`singletonMap` 1) $ ngrams
+formNgrams n t
+    -- A word shorter than or equal to the ngram length is taken as is
+    | n >= length t = singletonMap t 1 
+    | otherwise     = unionsWith (+) . map (`singletonMap` 1) $ ngrams
   where
     ngrams = filter ((==) n . length) . map (take n) . tails $ t
