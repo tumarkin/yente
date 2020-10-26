@@ -1,6 +1,10 @@
 # yente
 
-A matchmaker for textual data.
+A matchmaker for textual data. 
+
+# Alternate version
+
+A faster implementation written in Rust is also available: [yenta](https://github.com/tumarkin/yenta). This version in Haskell allows me to experiment with the algorithm easier. Most people will appreciate the 30x - 60x speed improvement from [yenta](https://github.com/tumarkin/yenta).
 
 # Overview
 
