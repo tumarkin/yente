@@ -1,9 +1,6 @@
-
 import           App.Yente.Match
 import           App.Yente.CLI
 import           App.Yente.Core
-
-
 
 main ∷ IO ()
 main = do
@@ -17,16 +14,10 @@ main = do
 
     yenteG yo comparer fromNamesWts toNamesWts
 
-
-
-
 compareNameListToNameCosine ∷ Maybe MisspellingMethod
                             → Name NormWeights
                             → Name NormWeights
                             → NameComparison
-compareNameListToNameCosine Nothing = cosine
+compareNameListToNameCosine Nothing   = cosine
 compareNameListToNameCosine (Just mm) = cosineWithMispellings mm
-
-
-
 

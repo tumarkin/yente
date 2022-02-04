@@ -2,6 +2,7 @@ module App.Yente.Match.PreProcess
   ( PreprocessingConfig(..)
   , PhoneticAlgorithm(..)
   , tokenizeNames
+  , nameEncoder
   ) where
 
 import           Data.Char                 (isAlphaNum, isLetter)

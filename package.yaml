@@ -1,6 +1,6 @@
 name:                yente
 version:             0.4.1.0
-github:              https://github.com/tumarkin/yente
+github:              tumarkin/yente
 license:             BSD3
 # license-file:        LICENSE
 author:              Robert Tumarkin
@@ -51,6 +51,17 @@ library:
 executables:
   yente:
     main:                yente.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    dependencies:
+    - yente
+
+  yentl:
+    main:                yentl.hs
     source-dirs:         app
     ghc-options:
     - -threaded
